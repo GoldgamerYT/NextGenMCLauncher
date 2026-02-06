@@ -1,0 +1,54 @@
+> Task :clean
+
+> Task :compileJava FAILED
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\fx\JSBridge.java:44: Fehler: Symbol nicht gefunden
+            if (p.getIcon() == null || p.getIcon().isEmpty()) {
+                 ^
+  Symbol: Methode getIcon()
+  Ort: Variable p von Typ Profile
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\fx\JSBridge.java:44: Fehler: Symbol nicht gefunden
+            if (p.getIcon() == null || p.getIcon().isEmpty()) {
+                                        ^
+  Symbol: Methode getIcon()
+  Ort: Variable p von Typ Profile
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\fx\JSBridge.java:45: Fehler: Symbol nicht gefunden
+                p.setIcon("Box"); // Default icon
+                 ^
+  Symbol: Methode setIcon(String)
+  Ort: Variable p von Typ Profile
+Hinweis: Einige Eingabedateien verwenden oder überschreiben eine veraltete API.
+Hinweis: Wiederholen Sie die Kompilierung mit -Xlint:deprecation, um Details zu erhalten.
+3 Fehler
+
+[Incubating] Problems report is available at: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  Hinweis: Wiederholen Sie die Kompilierung mit -Xlint:deprecation, um Details zu erhalten.
+  Hinweis: Einige Eingabedateien verwenden oder überschreiben eine veraltete API.
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\fx\JSBridge.java:44: Fehler: Symbol nicht gefunden
+              if (p.getIcon() == null || p.getIcon().isEmpty()) {
+                   ^
+    Symbol: Methode getIcon()
+    Ort: Variable p von Typ Profile
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\fx\JSBridge.java:44: Fehler: Symbol nicht gefunden
+              if (p.getIcon() == null || p.getIcon().isEmpty()) {
+                                          ^
+    Symbol: Methode getIcon()
+    Ort: Variable p von Typ Profile
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\fx\JSBridge.java:45: Fehler: Symbol nicht gefunden
+                  p.setIcon("Box"); // Default icon
+                   ^
+    Symbol: Methode setIcon(String)
+    Ort: Variable p von Typ Profile
+  3 Fehler
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (powered by Develocity).
+
+BUILD FAILED in 986ms
+2 actionable tasks: 2 executed

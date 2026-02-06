@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlas Craft</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script>
+    window.addEventListener('error', function (event) {
+      document.body.innerHTML =
+        '<div style="background:black;color:red;padding:20px;font-family:monospace;white-space:pre-wrap;">' +
+        '<h1>Global Script Error</h1>' +
+        '<strong>' + event.message + '</strong><br/>' +
+        event.filename + ':' + event.lineno + ':' + event.colno + '<br/>' +
+        (event.error ? event.error.stack : '') +
+        '</div>';
+    });
+    window.addEventListener('unhandledrejection', function (event) {
+      document.body.innerHTML +=
+        '<div style="background:black;color:orange;padding:20px;font-family:monospace;white-space:pre-wrap;border-top:1px solid #333;">' +
+        '<h1>Unhandled Rejection</h1>' +
+        '<strong>' + event.reason + '</strong><br/>' +
+        '</div>';
+    });
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+[
+  {
+    "name": "dasdas",
+    "version": "1.21.11",
+    "modLoader": "fabric",
+    "loaderVersion": "0.18.4",
+    "ramMb": 50560,
+    "javaPath": "",
+    "gameDir": "profiles/dasdas",
+    "iconPath": "Box"
+  }
+]

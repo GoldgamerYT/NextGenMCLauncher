@@ -1,0 +1,593 @@
+
+> Task :compileJava FAILED
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:4: Fehler: Package jmccc.launch ist nicht vorhanden
+import jmccc.launch.Launcher;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:5: Fehler: Package jmccc.launch ist nicht vorhanden
+import jmccc.launch.LauncherBuilder;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:6: Fehler: Package jmccc.launch ist nicht vorhanden
+import jmccc.launch.ProcessListener;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:7: Fehler: Package jmccc.option ist nicht vorhanden
+import jmccc.option.LaunchOption;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:8: Fehler: Package jmccc.option ist nicht vorhanden
+import jmccc.option.MinecraftDirectory;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:9: Fehler: Package jmccc.option ist nicht vorhanden
+import jmccc.option.JavaEnvironment;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:10: Fehler: Package jmccc.auth ist nicht vorhanden
+import jmccc.auth.OfflineAuthenticator;
+                 ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:17: Fehler: Symbol nicht gefunden
+    private Launcher launcher;
+            ^
+  Symbol: Klasse Launcher
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:3: Fehler: Package jmccc.mcdownloader ist nicht vorhanden
+import jmccc.mcdownloader.MinecraftDownloader;
+                         ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:4: Fehler: Package jmccc.mcdownloader ist nicht vorhanden
+import jmccc.mcdownloader.MinecraftDownloaderBuilder;
+                         ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:5: Fehler: Package jmccc.mcdownloader.download.concurrent ist nicht vorhanden
+import jmccc.mcdownloader.download.concurrent.CallbackAdapter;
+                                             ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:6: Fehler: Package jmccc.mcdownloader.download.concurrent ist nicht vorhanden
+import jmccc.mcdownloader.download.concurrent.DownloadCallback;
+                                             ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:7: Fehler: Package jmccc.version ist nicht vorhanden
+import jmccc.version.VersionList;
+                    ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:8: Fehler: Package jmccc.version ist nicht vorhanden
+import jmccc.version.Version;
+                    ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:16: Fehler: Symbol nicht gefunden
+    private MinecraftDownloader downloader;
+            ^
+  Symbol: Klasse MinecraftDownloader
+  Ort: Klasse VersionManager
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:22: Fehler: Symbol nicht gefunden
+    public void fetchVersions(DownloadCallback<VersionList> callback) {
+                              ^
+  Symbol: Klasse DownloadCallback
+  Ort: Klasse VersionManager
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:22: Fehler: Symbol nicht gefunden
+    public void fetchVersions(DownloadCallback<VersionList> callback) {
+                                               ^
+  Symbol: Klasse VersionList
+  Ort: Klasse VersionManager
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:3: Fehler: Package javafx.application ist nicht vorhanden
+import javafx.application.Application;
+                         ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:4: Fehler: Package javafx.fxml ist nicht vorhanden
+import javafx.fxml.FXMLLoader;
+                  ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:5: Fehler: Package javafx.scene ist nicht vorhanden
+import javafx.scene.Parent;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:6: Fehler: Package javafx.scene ist nicht vorhanden
+import javafx.scene.Scene;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:7: Fehler: Package javafx.stage ist nicht vorhanden
+import javafx.stage.Stage;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:11: Fehler: Symbol nicht gefunden
+public class LauncherApp extends Application {
+                                 ^
+  Symbol: Klasse Application
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:13: Fehler: Symbol nicht gefunden
+    private static Scene scene;
+                   ^
+  Symbol: Klasse Scene
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:16: Fehler: Symbol nicht gefunden
+    public void start(Stage stage) throws IOException {
+                      ^
+  Symbol: Klasse Stage
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:3: Fehler: Package javafx.event ist nicht vorhanden
+import javafx.event.ActionEvent;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:4: Fehler: Package javafx.fxml ist nicht vorhanden
+import javafx.fxml.FXML;
+                  ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:6: Fehler: Package javafx.stage ist nicht vorhanden
+import javafx.stage.DirectoryChooser;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:7: Fehler: Package javafx.stage ist nicht vorhanden
+import javafx.stage.FileChooser;
+                   ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:18: Fehler: Symbol nicht gefunden
+    private ComboBox<Profile> profileSelector;
+            ^
+  Symbol: Klasse ComboBox
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:20: Fehler: Symbol nicht gefunden
+    private TextField ramField;
+            ^
+  Symbol: Klasse TextField
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:22: Fehler: Symbol nicht gefunden
+    private TextField javaPathField;
+            ^
+  Symbol: Klasse TextField
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:24: Fehler: Symbol nicht gefunden
+    private TextArea consoleOutput;
+            ^
+  Symbol: Klasse TextArea
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:26: Fehler: Symbol nicht gefunden
+    private Button launchButton;
+            ^
+  Symbol: Klasse Button
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:53: Fehler: Symbol nicht gefunden
+    private void onLaunchStart(ActionEvent event) {
+                               ^
+  Symbol: Klasse ActionEvent
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:73: Fehler: Symbol nicht gefunden
+    private void onAddProfile(ActionEvent event) {
+                              ^
+  Symbol: Klasse ActionEvent
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:5: Fehler: Package javafx.scene.control ist nicht vorhanden
+import javafx.scene.control.*;
+^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:17: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:19: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:21: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:23: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:25: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:31: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:52: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:72: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:83: Fehler: Symbol nicht gefunden
+    @FXML
+     ^
+  Symbol: Klasse FXML
+  Ort: Klasse MainController
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:20: Fehler: Symbol nicht gefunden
+        this.launcher = LauncherBuilder.create().build();
+                        ^
+  Symbol: Variable LauncherBuilder
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:25: Fehler: Symbol nicht gefunden
+        MinecraftDirectory mcDir = new MinecraftDirectory(profile.getGameDir());
+        ^
+  Symbol: Klasse MinecraftDirectory
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:25: Fehler: Symbol nicht gefunden
+        MinecraftDirectory mcDir = new MinecraftDirectory(profile.getGameDir());
+                                       ^
+  Symbol: Klasse MinecraftDirectory
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:28: Fehler: Symbol nicht gefunden
+        LaunchOption option = new LaunchOption(profile.getVersion(), OfflineAuthenticator.name("Player"), mcDir);
+        ^
+  Symbol: Klasse LaunchOption
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:28: Fehler: Symbol nicht gefunden
+        LaunchOption option = new LaunchOption(profile.getVersion(), OfflineAuthenticator.name("Player"), mcDir);
+                                  ^
+  Symbol: Klasse LaunchOption
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:28: Fehler: Symbol nicht gefunden
+        LaunchOption option = new LaunchOption(profile.getVersion(), OfflineAuthenticator.name("Player"), mcDir);
+                                                                     ^
+  Symbol: Variable OfflineAuthenticator
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:32: Fehler: Symbol nicht gefunden
+            option.setJavaEnvironment(new JavaEnvironment(new File(profile.getJavaPath())));
+                                          ^
+  Symbol: Klasse JavaEnvironment
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:35: Fehler: Symbol nicht gefunden
+        this.launcher.launch(option, new ProcessListener() {
+                                         ^
+  Symbol: Klasse ProcessListener
+  Ort: Klasse LauncherEngine
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:36: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+            @Override
+            ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:41: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+            @Override
+            ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:46: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+            @Override
+            ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:19: Fehler: Symbol nicht gefunden
+        this.downloader = MinecraftDownloaderBuilder.create().build();
+                          ^
+  Symbol: Variable MinecraftDownloaderBuilder
+  Ort: Klasse VersionManager
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:15: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+    @Override
+    ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:17: Fehler: Symbol nicht gefunden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("main_view.fxml"));
+        ^
+  Symbol: Klasse FXMLLoader
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:17: Fehler: Symbol nicht gefunden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("main_view.fxml"));
+                                ^
+  Symbol: Klasse FXMLLoader
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:17: Fehler: Symbol nicht gefunden
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("main_view.fxml"));
+                                           ^
+  Symbol: Methode getClass()
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:18: Fehler: Symbol nicht gefunden
+        Parent root = loader.load();
+        ^
+  Symbol: Klasse Parent
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:19: Fehler: Symbol nicht gefunden
+        scene = new Scene(root, 900, 600);
+                    ^
+  Symbol: Klasse Scene
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:22: Fehler: Symbol nicht gefunden
+        String css = this.getClass().getResource("style.css").toExternalForm();
+                         ^
+  Symbol: Methode getClass()
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:31: Fehler: Symbol nicht gefunden
+        launch();
+        ^
+  Symbol: Methode launch()
+  Ort: Klasse LauncherApp
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:100: Fehler: Package javafx.application ist nicht vorhanden
+        javafx.application.Platform.runLater(() -> consoleOutput.appendText(msg + "\n"));
+                          ^
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:9: Fehler: Symbol nicht gefunden
+        IO.println(String.format("Hello and welcome!"));
+        ^
+  Symbol: Variable IO
+  Ort: Klasse Main
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:14: Fehler: Symbol nicht gefunden
+            IO.println("i = " + i);
+            ^
+  Symbol: Variable IO
+  Ort: Klasse Main
+69 Fehler
+
+[Incubating] Problems report is available at: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:22: Fehler: Symbol nicht gefunden
+          String css = this.getClass().getResource("style.css").toExternalForm();
+                           ^
+    Symbol: Methode getClass()
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:17: Fehler: Symbol nicht gefunden
+      private Launcher launcher;
+              ^
+    Symbol: Klasse Launcher
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:16: Fehler: Symbol nicht gefunden
+      private MinecraftDownloader downloader;
+              ^
+    Symbol: Klasse MinecraftDownloader
+    Ort: Klasse VersionManager
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:22: Fehler: Symbol nicht gefunden
+      public void fetchVersions(DownloadCallback<VersionList> callback) {
+                                ^
+    Symbol: Klasse DownloadCallback
+    Ort: Klasse VersionManager
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:22: Fehler: Symbol nicht gefunden
+      public void fetchVersions(DownloadCallback<VersionList> callback) {
+                                                 ^
+    Symbol: Klasse VersionList
+    Ort: Klasse VersionManager
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:13: Fehler: Symbol nicht gefunden
+      private static Scene scene;
+                     ^
+    Symbol: Klasse Scene
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:16: Fehler: Symbol nicht gefunden
+      public void start(Stage stage) throws IOException {
+                        ^
+    Symbol: Klasse Stage
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:18: Fehler: Symbol nicht gefunden
+      private ComboBox<Profile> profileSelector;
+              ^
+    Symbol: Klasse ComboBox
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:20: Fehler: Symbol nicht gefunden
+      private TextField ramField;
+              ^
+    Symbol: Klasse TextField
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:22: Fehler: Symbol nicht gefunden
+      private TextField javaPathField;
+              ^
+    Symbol: Klasse TextField
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:24: Fehler: Symbol nicht gefunden
+      private TextArea consoleOutput;
+              ^
+    Symbol: Klasse TextArea
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:26: Fehler: Symbol nicht gefunden
+      private Button launchButton;
+              ^
+    Symbol: Klasse Button
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:53: Fehler: Symbol nicht gefunden
+      private void onLaunchStart(ActionEvent event) {
+                                 ^
+    Symbol: Klasse ActionEvent
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:73: Fehler: Symbol nicht gefunden
+      private void onAddProfile(ActionEvent event) {
+                                ^
+    Symbol: Klasse ActionEvent
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:17: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:19: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:21: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:23: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:25: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:31: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:52: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:72: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:83: Fehler: Symbol nicht gefunden
+      @FXML
+       ^
+    Symbol: Klasse FXML
+    Ort: Klasse MainController
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:20: Fehler: Symbol nicht gefunden
+          this.launcher = LauncherBuilder.create().build();
+                          ^
+    Symbol: Variable LauncherBuilder
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:25: Fehler: Symbol nicht gefunden
+          MinecraftDirectory mcDir = new MinecraftDirectory(profile.getGameDir());
+          ^
+    Symbol: Klasse MinecraftDirectory
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:25: Fehler: Symbol nicht gefunden
+          MinecraftDirectory mcDir = new MinecraftDirectory(profile.getGameDir());
+                                         ^
+    Symbol: Klasse MinecraftDirectory
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:28: Fehler: Symbol nicht gefunden
+          LaunchOption option = new LaunchOption(profile.getVersion(), OfflineAuthenticator.name("Player"), mcDir);
+          ^
+    Symbol: Klasse LaunchOption
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:28: Fehler: Symbol nicht gefunden
+          LaunchOption option = new LaunchOption(profile.getVersion(), OfflineAuthenticator.name("Player"), mcDir);
+                                    ^
+    Symbol: Klasse LaunchOption
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:28: Fehler: Symbol nicht gefunden
+          LaunchOption option = new LaunchOption(profile.getVersion(), OfflineAuthenticator.name("Player"), mcDir);
+                                                                       ^
+    Symbol: Variable OfflineAuthenticator
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:32: Fehler: Symbol nicht gefunden
+              option.setJavaEnvironment(new JavaEnvironment(new File(profile.getJavaPath())));
+                                            ^
+    Symbol: Klasse JavaEnvironment
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:35: Fehler: Symbol nicht gefunden
+          this.launcher.launch(option, new ProcessListener() {
+                                           ^
+    Symbol: Klasse ProcessListener
+    Ort: Klasse LauncherEngine
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:19: Fehler: Symbol nicht gefunden
+          this.downloader = MinecraftDownloaderBuilder.create().build();
+                            ^
+    Symbol: Variable MinecraftDownloaderBuilder
+    Ort: Klasse VersionManager
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:17: Fehler: Symbol nicht gefunden
+          FXMLLoader loader = new FXMLLoader(getClass().getResource("main_view.fxml"));
+          ^
+    Symbol: Klasse FXMLLoader
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:17: Fehler: Symbol nicht gefunden
+          FXMLLoader loader = new FXMLLoader(getClass().getResource("main_view.fxml"));
+                                  ^
+    Symbol: Klasse FXMLLoader
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:18: Fehler: Symbol nicht gefunden
+          Parent root = loader.load();
+          ^
+    Symbol: Klasse Parent
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:19: Fehler: Symbol nicht gefunden
+          scene = new Scene(root, 900, 600);
+                      ^
+    Symbol: Klasse Scene
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:9: Fehler: Symbol nicht gefunden
+          IO.println(String.format("Hello and welcome!"));
+          ^
+    Symbol: Variable IO
+    Ort: Klasse Main
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:14: Fehler: Symbol nicht gefunden
+              IO.println("i = " + i);
+              ^
+    Symbol: Variable IO
+    Ort: Klasse Main
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:36: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+              @Override
+              ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:41: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+              @Override
+              ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:46: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+              @Override
+              ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:15: Fehler: Methode überschreibt oder implementiert keine Methode aus einem Supertyp
+      @Override
+      ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:11: Fehler: Symbol nicht gefunden
+  public class LauncherApp extends Application {
+                                   ^
+    Symbol: Klasse Application
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:17: Fehler: Symbol nicht gefunden
+          FXMLLoader loader = new FXMLLoader(getClass().getResource("main_view.fxml"));
+                                             ^
+    Symbol: Methode getClass()
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:31: Fehler: Symbol nicht gefunden
+          launch();
+          ^
+    Symbol: Methode launch()
+    Ort: Klasse LauncherApp
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:4: Fehler: Package jmccc.launch ist nicht vorhanden
+  import jmccc.launch.Launcher;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:5: Fehler: Package jmccc.launch ist nicht vorhanden
+  import jmccc.launch.LauncherBuilder;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:6: Fehler: Package jmccc.launch ist nicht vorhanden
+  import jmccc.launch.ProcessListener;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:7: Fehler: Package jmccc.option ist nicht vorhanden
+  import jmccc.option.LaunchOption;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:8: Fehler: Package jmccc.option ist nicht vorhanden
+  import jmccc.option.MinecraftDirectory;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:9: Fehler: Package jmccc.option ist nicht vorhanden
+  import jmccc.option.JavaEnvironment;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\LauncherEngine.java:10: Fehler: Package jmccc.auth ist nicht vorhanden
+  import jmccc.auth.OfflineAuthenticator;
+                   ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:3: Fehler: Package jmccc.mcdownloader ist nicht vorhanden
+  import jmccc.mcdownloader.MinecraftDownloader;
+                           ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:4: Fehler: Package jmccc.mcdownloader ist nicht vorhanden
+  import jmccc.mcdownloader.MinecraftDownloaderBuilder;
+                           ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:5: Fehler: Package jmccc.mcdownloader.download.concurrent ist nicht vorhanden
+  import jmccc.mcdownloader.download.concurrent.CallbackAdapter;
+                                               ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:6: Fehler: Package jmccc.mcdownloader.download.concurrent ist nicht vorhanden
+  import jmccc.mcdownloader.download.concurrent.DownloadCallback;
+                                               ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:7: Fehler: Package jmccc.version ist nicht vorhanden
+  import jmccc.version.VersionList;
+                      ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\core\VersionManager.java:8: Fehler: Package jmccc.version ist nicht vorhanden
+  import jmccc.version.Version;
+                      ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:3: Fehler: Package javafx.application ist nicht vorhanden
+  import javafx.application.Application;
+                           ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:4: Fehler: Package javafx.fxml ist nicht vorhanden
+  import javafx.fxml.FXMLLoader;
+                    ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:5: Fehler: Package javafx.scene ist nicht vorhanden
+  import javafx.scene.Parent;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:6: Fehler: Package javafx.scene ist nicht vorhanden
+  import javafx.scene.Scene;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\LauncherApp.java:7: Fehler: Package javafx.stage ist nicht vorhanden
+  import javafx.stage.Stage;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:3: Fehler: Package javafx.event ist nicht vorhanden
+  import javafx.event.ActionEvent;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:4: Fehler: Package javafx.fxml ist nicht vorhanden
+  import javafx.fxml.FXML;
+                    ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:6: Fehler: Package javafx.stage ist nicht vorhanden
+  import javafx.stage.DirectoryChooser;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:7: Fehler: Package javafx.stage ist nicht vorhanden
+  import javafx.stage.FileChooser;
+                     ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:5: Fehler: Package javafx.scene.control ist nicht vorhanden
+  import javafx.scene.control.*;
+  ^
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\launcher\ui\MainController.java:100: Fehler: Package javafx.application ist nicht vorhanden
+          javafx.application.Platform.runLater(() -> consoleOutput.appendText(msg + "\n"));
+                            ^
+  69 Fehler
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (powered by Develocity).
+
+BUILD FAILED in 1s
+1 actionable task: 1 executed

@@ -1,0 +1,100 @@
+
+> Configure project :
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:22:1: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:24:1: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:24:13: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:5: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:14: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:15: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:18: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:19: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:20: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:60: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:25:61: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:26:1: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:28:1: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:28:6: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:28:7: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:28:12: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:29:5: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:29:21: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:29:22: Unexpected symbol
+e: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build.gradle.kts:30:1: Unexpected symbol
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'C:\Users\Jerome\IdeaProjects\MCLauncher\build.gradle.kts' line: 22
+
+* What went wrong:
+Script compilation errors:
+
+  Line 22: }
+           ^ Unexpected symbol
+
+  Line 24: application {
+           ^ Unexpected symbol
+
+  Line 24: application {
+                       ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+               ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                        ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                         ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                            ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                             ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                              ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                                                                      ^ Unexpected symbol
+
+  Line 25:     mainClass.set("net.gamehost24.launcher.ui.fx.LauncherFX")
+                                                                       ^ Unexpected symbol
+
+  Line 26: }
+           ^ Unexpected symbol
+
+  Line 28: tasks.test {
+           ^ Unexpected symbol
+
+  Line 28: tasks.test {
+                ^ Unexpected symbol
+
+  Line 28: tasks.test {
+                 ^ Unexpected symbol
+
+  Line 28: tasks.test {
+                      ^ Unexpected symbol
+
+  Line 29:     useJUnitPlatform()
+               ^ Unexpected symbol
+
+  Line 29:     useJUnitPlatform()
+                               ^ Unexpected symbol
+
+  Line 29:     useJUnitPlatform()
+                                ^ Unexpected symbol
+
+  Line 30: }
+           ^ Unexpected symbol
+
+20 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 765ms

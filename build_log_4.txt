@@ -1,0 +1,39 @@
+
+> Task :compileJava FAILED
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:9: Fehler: Symbol nicht gefunden
+        IO.println(String.format("Hello and welcome!"));
+        ^
+  Symbol: Variable IO
+  Ort: Klasse Main
+C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:14: Fehler: Symbol nicht gefunden
+            IO.println("i = " + i);
+            ^
+  Symbol: Variable IO
+  Ort: Klasse Main
+2 Fehler
+
+[Incubating] Problems report is available at: file:///C:/Users/Jerome/IdeaProjects/MCLauncher/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:9: Fehler: Symbol nicht gefunden
+          IO.println(String.format("Hello and welcome!"));
+          ^
+    Symbol: Variable IO
+    Ort: Klasse Main
+  C:\Users\Jerome\IdeaProjects\MCLauncher\src\main\java\net\gamehost24\Main.java:14: Fehler: Symbol nicht gefunden
+              IO.println("i = " + i);
+              ^
+    Symbol: Variable IO
+    Ort: Klasse Main
+  2 Fehler
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (powered by Develocity).
+
+BUILD FAILED in 1s
+1 actionable task: 1 executed

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Craft</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="titlebar">
+        <div class="window-title">Atlas Craft</div>
+        <div class="window-controls">
+            <button class="win-btn" onclick="winMin()">&#9472;</button>
+            <button class="win-btn" onclick="winMax()">&#9633;</button>
+            <button class="win-btn close" onclick="winClose()">&#10005;</button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="brand">Atlas Craft</div>
+            <div class="nav-item active">
+                <span class="nav-icon">▤</span> Profiles
+            </div>
+            <div class="nav-item">
+                <span class="nav-icon">⚙</span> Global Settings
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="header">
+                <div class="title">My Profiles</div>
+                <button class="add-btn" onclick="openAddModal()">+ New Profile</button>
+            </div>
+
+            <div class="content">
+                <div class="grid" id="profileGrid">
+                    <!-- Profiles injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Profile Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal">
+            <div class="modal-header">
+                Create Profile
+                <span style="cursor:pointer" onclick="closeModals()">✕</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Profile Name</label>
+                    <input type="text" class="form-input" id="pName" placeholder="My Awesome Profile">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Modloader</label>
+                    <!-- Custom Select: Modloader (No Search) -->
+                    <div class="custom-select-wrapper unsearchable">
+                        <input type="text" class="form-input custom-select-input" id="pLoaderInput" value="Vanilla"
+                            readonly onclick="toggleDropdown('loaderType')">
+                        <div class="custom-options-list" id="loaderTypeOptionsList">
+                            <div class="custom-option" onclick="selectLoaderType('Vanilla')">Vanilla</div>
+                            <div class="custom-option" onclick="selectLoaderType('Fabric')">Fabric</div>
+                            <div class="custom-option" onclick="selectLoaderType('Forge')">Forge</div>
+                            <div class="custom-option" onclick="selectLoaderType('NeoForge')">NeoForge (Beta)</div>
+                        </div>
+                        <input type="hidden" id="pLoader" value="Vanilla">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Game Version</label>
+                    <!-- Custom Select: Game Version (Searchable) -->
+                    <div class="custom-select-wrapper">
+                        <input type="text" class="form-input custom-select-input" id="pVersionInput"
+                            placeholder="Select Version..." onclick="toggleDropdown('version')"
+                            onkeyup="filterDropdown('version')" autocomplete="off">
+                        <div class="custom-options-list" id="versionOptionsList">
+                            <!-- JS Populated -->
+                        </div>
+                        <input type="hidden" id="pVersion">
+                    </div>
+                </div>
+
+                <div class="form-group" id="loaderVerGroup" style="display:none;">
+                    <label class="form-label">Loader Version</label>
+                    <!-- Custom Select: Loader Version (Searchable/Standard) -->
+                    <div class="custom-select-wrapper">
+                        <input type="text" class="form-input custom-select-input" id="pLoaderVerInput"
+                            placeholder="Select Loader Version..." onclick="toggleDropdown('loaderVer')"
+                            onkeyup="filterDropdown('loaderVer')" autocomplete="off">
+                        <div class="custom-options-list" id="loaderVerOptionsList">
+                            <!-- JS Populated -->
+                        </div>
+                        <input type="hidden" id="pLoaderVer">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sec" onclick="closeModals()">Cancel</button>
+                <button class="add-btn" onclick="createProfile()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                Profile Settings
+                <span style="cursor:pointer" onclick="closeModals()">✕</span>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="sProfileName">
+                <div class="form-group">
+                    <label class="form-label">Memory (RAM): <span id="ramVal">2048</span> MB</label>
+                    <input type="range" class="form-input" id="sRam" min="2048" max="16384" step="256"
+                        oninput="updateRamDisplay()">
+                </div>
+
+                <div class="form-group">
+                    <button class="btn-sec" style="border:1px solid #444; width:100%" onclick="openMods()">📂 Open Mods
+                        Folder</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sec" onclick="closeModals()">Cancel</button>
+                <button class="add-btn" onclick="saveSettings()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
