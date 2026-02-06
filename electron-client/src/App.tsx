@@ -1,190 +1,382 @@
 import { useState, useEffect } from 'react';
-import useWebSocket from 'react-use-websocket';
-import { Plus, LayoutGrid, Settings, Info, Loader } from 'lucide-react';
-import logoDark from './assets/logo-dark.svg';
+import { Plus, LayoutGrid, Settings, LogOut, Gamepad2, AlertCircle } from 'lucide-react';
+import logoDark from './assets/logos/logo-dark.svg';
 import { TitleBar } from './components/TitleBar';
+import { ModCenter } from './components/ModCenter';
+import { GlobalSettings } from './components/GlobalSettings';
 import { ProfileCard } from './components/ProfileCard';
 import { AddProfileModal } from './components/AddProfileModal';
 import { SettingsModal } from './components/SettingsModal';
-import { GlobalSettings } from './components/GlobalSettings';
-import { ConsoleWindow } from './components/ConsoleWindow';
-import { ModCenter } from './components/ModCenter';
-import { api, Profile } from './api';
+
+// Zustand Stores
+import { useProfileStore } from './stores/profileStore';
+import { useVersionStore } from './stores/versionStore';
+import { useModStore } from './stores/modStore';
+import { useAccountStore } from './stores/accountStore';
+import { useUIStore } from './stores/uiStore';
+
+// Services
+import { api } from './services/api';
+import { wsClient } from './services/websocket';
+
 import clsx from 'clsx';
 
 function App() {
-    // Check for console window mode
-    if (window.location.search.includes('console=')) {
-        return <ConsoleWindow />;
-    }
+  // Check for console window mode
+  if (window.location.search.includes('console=')) {
+    return <div className="w-full h-screen bg-black text-white font-mono text-sm p-4">Console Window</div>;
+  }
 
-    const [profiles, setProfiles] = useState<Profile[]>([]);
-    const [statuses, setStatuses] = useState<Record<string, { state: 'running' | 'installing' | 'stopped', message?: string }>>({});
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
-    const [modCenterProfile, setModCenterProfile] = useState<Profile | null>(null);
-    const [activeTab, setActiveTab] = useState('profiles');
-    const [gridScale, setGridScale] = useState(1.0);
+  // State
+  const [activeTab, setActiveTab] = useState<'launcher' | 'mods' | 'settings' | 'about'>('launcher');
+  const [isAddProfileOpen, setIsAddProfileOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState<any>(null);
+  const [modCenterProfile, setModCenterProfile] = useState<any>(null);
+  const [gridScale, setGridScale] = useState(1.0);
 
-    // WebSocket Connection
-    const { lastMessage } = useWebSocket('ws://localhost:35555/api/ws', {
-        shouldReconnect: () => true,
-    });
+  // Store Hooks
+  const { profiles, currentProfile, setCurrentProfile, addProfile, deleteProfile } = useProfileStore();
+  const { versions, loadVersions } = useVersionStore();
+  const { mods, loadMods } = useModStore();
+  const { currentAccount, logout } = useAccountStore();
+  const { notifications, isLaunching, gameLogs, addNotification } = useUIStore();
 
-    useEffect(() => {
-        refreshProfiles();
-        api.getConfig().then(c => {
-            if (c.gridScale) setGridScale(c.gridScale);
+  // Initialize Stores & WebSocket on Mount
+  useEffect(() => {
+    const initializeApp = async () => {
+      try {
+        // Load versions
+        await loadVersions();
+
+        // Load mods
+        await loadMods();
+
+        // Connect WebSocket for real-time logs
+        wsClient.connect();
+
+        // Load grid config
+        const config = await api.config.get();
+        if (config.data?.gridScale) {
+          setGridScale(config.data.gridScale);
+        }
+      } catch (error) {
+        console.error('Failed to initialize app:', error);
+        addNotification({
+          id: Date.now().toString(),
+          type: 'error',
+          message: 'Failed to initialize application',
+          timestamp: new Date(),
         });
-    }, [activeTab]);
-
-    useEffect(() => {
-        if (lastMessage !== null) {
-            try {
-                const data = JSON.parse(lastMessage.data);
-                if (data.type === 'status') {
-                    setStatuses(prev => ({
-                        ...prev,
-                        [data.profile]: { ...prev[data.profile], state: data.payload }
-                    }));
-                } else if (data.type === 'log' || data.type === 'error') {
-                    setStatuses(prev => ({
-                        ...prev,
-                        [data.profile]: { ...prev[data.profile], message: data.payload }
-                    }));
-                }
-            } catch (e) { console.error("WS Parse Error", e); }
-        }
-    }, [lastMessage]);
-
-    const refreshProfiles = async () => {
-        try {
-            const p = await api.getProfiles();
-            setProfiles(p);
-            // Refresh config too, in case it changed
-            const c = await api.getConfig();
-            if (c.gridScale) setGridScale(c.gridScale);
-        } catch (e) {
-            console.error("Failed to load profiles", e);
-        }
+      }
     };
 
-    const handleDelete = async (name: string) => {
-        await api.deleteProfile(name);
-        refreshProfiles();
+    initializeApp();
+
+    // Cleanup WebSocket on unmount
+    return () => {
+      wsClient.disconnect();
     };
+  }, []);
 
-    return (
-        <div className="h-screen w-full bg-[#09090b] text-white flex flex-col font-sans overflow-hidden selection:bg-green-500/30">
-            <TitleBar />
+  const handleDeleteProfile = async (profileId: string) => {
+    try {
+      await deleteProfile(profileId);
+      addNotification({
+        id: Date.now().toString(),
+        type: 'success',
+        message: 'Profile deleted',
+        timestamp: new Date(),
+        duration: 3000,
+      });
+    } catch (error: any) {
+      addNotification({
+        id: Date.now().toString(),
+        type: 'error',
+        message: error.message || 'Failed to delete profile',
+        timestamp: new Date(),
+        duration: 5000,
+      });
+    }
+  };
 
-            {/* Ambient Background */}
-            <div className="fixed inset-0 z-0 pointer-events-none">
-                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-green-500/5 blur-[120px]" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-500/5 blur-[120px]" />
-            </div>
+  const handleLogout = async () => {
+    try {
+      await logout();
+      addNotification({
+        id: Date.now().toString(),
+        type: 'success',
+        message: 'Logged out',
+        timestamp: new Date(),
+        duration: 2000,
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
-            <div className="flex flex-1 pt-10 overflow-hidden z-10 relative">
-                {/* Sidebar */}
-                <div className="w-20 lg:w-64 flex-shrink-0 flex flex-col p-4 gap-2 border-r border-white/5 bg-black/20 backdrop-blur-xl">
-                    <nav className="flex-1 flex flex-col gap-2">
-                        <NavButton active={activeTab === 'profiles'} onClick={() => setActiveTab('profiles')} icon={LayoutGrid} label="Library" />
-                        <NavButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon={Settings} label="Settings" />
-                    </nav>
-                    <div className="mt-auto">
-                        <NavButton active={activeTab === 'about'} onClick={() => setActiveTab('about')} icon={Info} label="About" />
-                    </div>
-                </div>
+  return (
+    <div className="h-screen w-full bg-slate-950 text-white flex flex-col font-[Montserrat] overflow-hidden selection:bg-cyan-500/30">
+      {/* Title Bar */}
+      <TitleBar />
 
-                {/* Main Content */}
-                <div className="flex-1 overflow-y-auto p-4 lg:p-8 scrollbar-hide">
-                    <div className="max-w-[1600px] mx-auto">
-                        {/* Header Section */}
-                        {activeTab === 'profiles' && (
-                            <div className="flex flex-col gap-8">
-                                <div className="flex items-end justify-between">
-                                    <div>
-                                        <h1 className="text-4xl font-bold tracking-tight text-white mb-2">Library</h1>
-                                        <p className="text-zinc-400 font-medium">Manage your instances</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setIsModalOpen(true)}
-                                        className="group px-4 py-2.5 bg-white text-black font-bold rounded-xl hover:bg-zinc-200 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-white/5 ring-1 ring-white/50"
-                                    >
-                                        <span className="bg-black/10 p-1 rounded-md group-hover:bg-black/20 transition-colors"><Plus size={16} /></span>
-                                        <span>New Instance</span>
-                                    </button>
-                                </div>
+      {/* Ambient Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-500/5 blur-[120px]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-cyan-500/5 blur-[120px]" />
+      </div>
 
-                                {/* Grid */}
-                                <div
-                                    className="grid gap-6 pb-20 transition-all"
-                                    style={{ gridTemplateColumns: `repeat(auto-fill, minmax(${280 * gridScale}px, 1fr))` }}
-                                >
-                                    {profiles.map(p => (
-                                        <ProfileCard
-                                            key={p.name}
-                                            profile={p}
-                                            status={statuses[p.name]}
-                                            onDelete={() => handleDelete(p.name)}
-                                            onSettings={() => setEditingProfile(p)}
-                                            onMods={() => setModCenterProfile(p)}
-                                        />
-                                    ))}
+      {/* Main Layout */}
+      <div className="flex flex-1 overflow-hidden z-10 relative">
+        {/* Sidebar */}
+        <div className="w-20 lg:w-64 flex-shrink-0 flex flex-col p-4 gap-2 border-r border-white/5 bg-black/20 backdrop-blur-xl">
+          <nav className="flex-1 flex flex-col gap-2">
+            <NavButton
+              active={activeTab === 'launcher'}
+              onClick={() => setActiveTab('launcher')}
+              icon={Gamepad2}
+              label="Launcher"
+            />
+            <NavButton
+              active={activeTab === 'mods'}
+              onClick={() => setActiveTab('mods')}
+              icon={Plus}
+              label="Mods"
+            />
+            <NavButton
+              active={activeTab === 'settings'}
+              onClick={() => setActiveTab('settings')}
+              icon={Settings}
+              label="Settings"
+            />
+          </nav>
 
-                                    {profiles.length === 0 && (
-                                        <div className="col-span-full py-32 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
-                                            <div className="inline-flex p-6 rounded-2xl bg-white/5 mb-6 ring-1 ring-white/10"><Plus size={48} className="text-zinc-600" /></div>
-                                            <h3 className="text-2xl font-bold text-zinc-300 mb-2">No Profiles Yet</h3>
-                                            <p className="text-zinc-500 mb-8 max-w-md mx-auto">Create your first Minecraft instance to get started. You can install mods, configure settings, and more.</p>
-                                            <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl transition-all shadow-lg shadow-green-500/20">Create Instance</button>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'settings' && <GlobalSettings />}
-
-                        {activeTab === 'about' && (
-                            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-                                <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-blue-500 rounded-3xl mb-8 shadow-2xl shadow-green-500/20 rotate-12 blur-sm absolute opacity-20"></div>
-                                <div className="w-32 h-32 mb-8 relative z-10">
-                                    <img src={logoDark} className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(34,197,94,0.15)]" alt="Atlas Craft" />
-                                </div>
-                                <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">Atlas Craft</h1>
-                                <div className="flex items-center gap-3 mb-8">
-                                    <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-zinc-400">v1.0.0-Beta</span>
-                                    <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-mono text-green-400">Stable</span>
-                                </div>
-                                <p className="text-zinc-500 max-w-md">The next generation Minecraft launcher. Built for performance, design, and usability.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {isModalOpen && <AddProfileModal onClose={() => setIsModalOpen(false)} onCreated={() => { setIsModalOpen(false); refreshProfiles(); }} />}
-            {editingProfile && <SettingsModal profile={editingProfile} onClose={() => setEditingProfile(null)} onSaved={() => { setEditingProfile(null); refreshProfiles(); }} />}
-            {modCenterProfile && <ModCenter profile={modCenterProfile} onClose={() => setModCenterProfile(null)} />}
+          {/* Account Section */}
+          <div className="pt-4 border-t border-white/5 flex flex-col gap-2">
+            {currentAccount ? (
+              <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                <p className="text-xs text-white/70 mb-1">Account</p>
+                <p className="text-sm font-bold text-cyan-400 truncate">{currentAccount.name}</p>
+                <button
+                  onClick={handleLogout}
+                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300 transition-colors"
+                >
+                  <LogOut size={14} />
+                  <span className="hidden lg:block">Logout</span>
+                </button>
+              </div>
+            ) : (
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                <p className="text-xs text-amber-300">Not logged in</p>
+                <p className="text-xs text-white/60 mt-1">Login to play</p>
+              </div>
+            )}
+          </div>
         </div>
-    );
+
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
+          <div className="w-full h-full p-4 lg:p-8">
+            {/* Launcher Tab */}
+            {activeTab === 'launcher' && (
+              <div className="space-y-8">
+                {/* Header */}
+                <div className="flex items-end justify-between">
+                  <div>
+                    <h1 className="text-4xl font-bold tracking-tight text-white mb-2">
+                      Atlas Craft
+                    </h1>
+                    <p className="text-zinc-400 font-medium">Launch & Manage Game Profiles</p>
+                  </div>
+                  <button
+                    onClick={() => setIsAddProfileOpen(true)}
+                    className="group px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan-500/30 transition-all active:scale-95 flex items-center gap-2"
+                  >
+                    <Plus size={20} />
+                    <span>New Profile</span>
+                  </button>
+                </div>
+
+                {/* Profiles Grid */}
+                {profiles.length > 0 ? (
+                  <div
+                    className="grid gap-6 pb-20 transition-all"
+                    style={{
+                      gridTemplateColumns: `repeat(auto-fill, minmax(${280 * gridScale}px, 1fr))`,
+                    }}
+                  >
+                    {profiles.map((profile) => (
+                      <div
+                        key={profile.id}
+                        onClick={() => setCurrentProfile(profile.id)}
+                        className={clsx(
+                          'cursor-pointer transition-all',
+                          currentProfile?.id === profile.id &&
+                          'ring-2 ring-cyan-400 shadow-lg shadow-cyan-500/20'
+                        )}
+                      >
+                        <ProfileCard
+                          profile={profile}
+                          onDelete={() => handleDeleteProfile(profile.id)}
+                          onSettings={() => setEditingProfile(profile)}
+                          onMods={() => setModCenterProfile(profile)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center min-h-[50vh] border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
+                    <div className="text-center">
+                      <div className="inline-flex p-6 rounded-2xl bg-white/5 mb-6 ring-1 ring-white/10">
+                        <Gamepad2 size={48} className="text-zinc-600" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-zinc-300 mb-2">
+                        No Profiles Yet
+                      </h3>
+                      <p className="text-zinc-500 mb-8 max-w-md">
+                        Create your first game profile to get started. Configure Java, RAM, mods, and more.
+                      </p>
+                      <button
+                        onClick={() => setIsAddProfileOpen(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
+                      >
+                        Create Profile
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Mods Tab */}
+            {activeTab === 'mods' && modCenterProfile && (
+              <ModCenter
+                profile={modCenterProfile}
+                onClose={() => {
+                  setModCenterProfile(null);
+                  setActiveTab('launcher');
+                }}
+              />
+            )}
+
+            {/* Mods Tab - Empty State */}
+            {activeTab === 'mods' && !modCenterProfile && (
+              <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                  <AlertCircle size={48} className="text-zinc-600 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold text-zinc-300 mb-2">
+                    Select a Profile
+                  </h3>
+                  <p className="text-zinc-500 mb-8 max-w-md">
+                    Go to the Launcher tab and select a profile to manage mods.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('launcher')}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-cyan-500/30 transition-all"
+                  >
+                    Go to Launcher
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Settings Tab */}
+            {activeTab === 'settings' && <GlobalSettings />}
+
+            {/* About Tab (embedded in about state) */}
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {isAddProfileOpen && (
+        <AddProfileModal
+          onClose={() => setIsAddProfileOpen(false)}
+          onCreated={() => {
+            setIsAddProfileOpen(false);
+          }}
+        />
+      )}
+
+      {editingProfile && (
+        <SettingsModal
+          profile={editingProfile}
+          onClose={() => setEditingProfile(null)}
+          onSaved={() => {
+            setEditingProfile(null);
+          }}
+        />
+      )}
+
+      {/* Notification Toast Container */}
+      <div className="fixed bottom-4 right-4 space-y-2 z-50 pointer-events-none">
+        {notifications.slice(-3).map((notification) => (
+          <div
+            key={notification.id}
+            className={clsx(
+              'px-4 py-3 rounded-lg font-medium text-sm flex items-center gap-2 pointer-events-auto shadow-lg backdrop-blur-sm',
+              notification.type === 'success' &&
+              'bg-green-500/20 border border-green-500/50 text-green-300',
+              notification.type === 'error' &&
+              'bg-red-500/20 border border-red-500/50 text-red-300',
+              notification.type === 'warning' &&
+              'bg-amber-500/20 border border-amber-500/50 text-amber-300',
+              notification.type === 'info' &&
+              'bg-blue-500/20 border border-blue-500/50 text-blue-300'
+            )}
+          >
+            {notification.message}
+          </div>
+        ))}
+      </div>
+
+      {/* Game Logs Panel (if in-game) */}
+      {isLaunching && gameLogs.length > 0 && (
+        <div className="fixed bottom-4 left-4 max-w-md max-h-48 bg-black/80 border border-cyan-500/30 rounded-lg overflow-hidden z-40">
+          <div className="bg-cyan-500/20 px-4 py-2 border-b border-cyan-500/30">
+            <p className="text-xs font-bold text-cyan-400">Game Logs</p>
+          </div>
+          <div className="overflow-y-auto max-h-40 p-3 text-xs font-mono text-green-400 space-y-1">
+            {gameLogs.slice(-10).map((log, i) => (
+              <div key={i}>{log}</div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function NavButton({ active, onClick, icon: Icon, label }: any) {
-    return (
-        <button
-            onClick={onClick}
-            className={clsx(
-                "group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 w-full text-left relative overflow-hidden",
-                active ? "bg-white/10 text-white shadow-inner ring-1 ring-white/5" : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
-            )}
-        >
-            {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-green-500 rounded-r-full shadow-[0_0_10px_2px_rgba(34,197,94,0.5)]" />}
-            <Icon size={22} className={clsx("transition-transform group-active:scale-90", active ? "text-green-400" : "text-current")} />
-            <span className="hidden lg:block font-medium tracking-wide text-sm">{label}</span>
-        </button>
-    )
+interface NavButtonProps {
+  active: boolean;
+  onClick: () => void;
+  icon: any;
+  label: string;
+}
+
+function NavButton({ active, onClick, icon: Icon, label }: NavButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={clsx(
+        'group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 w-full text-left relative overflow-hidden',
+        active
+          ? 'bg-cyan-500/10 text-cyan-400 shadow-inner ring-1 ring-cyan-500/30'
+          : 'text-zinc-500 hover:bg-white/5 hover:text-zinc-300'
+      )}
+    >
+      {active && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-cyan-400 rounded-r-full shadow-[0_0_10px_2px_rgba(34,211,238,0.5)]" />
+      )}
+      <Icon
+        size={22}
+        className={clsx(
+          'transition-transform group-active:scale-90',
+          active ? 'text-cyan-400' : 'text-current'
+        )}
+      />
+      <span className="hidden lg:block font-medium tracking-wide text-sm">{label}</span>
+    </button>
+  );
 }
 
 export default App;
