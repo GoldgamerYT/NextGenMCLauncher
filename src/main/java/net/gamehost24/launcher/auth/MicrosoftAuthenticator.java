@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 public class MicrosoftAuthenticator implements Authenticator {
 
     // Microsoft Azure App Client ID (Public Client for Minecraft)
-    // This is the official Minecraft Launcher client ID
-    private static final String CLIENT_ID = "00000000402b5328";
+    // Using the Prism Launcher / PolyMC client ID which is approved for third-party launchers
+    private static final String CLIENT_ID = "c36a9fb6-4f2a-41ff-90bd-ae7cc92031eb";
     
     private static final String MICROSOFT_DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
     private static final String MICROSOFT_TOKEN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
@@ -416,13 +416,25 @@ public class MicrosoftAuthenticator implements Authenticator {
     // ==================== HTTP HELPERS ====================
 
     private String postForm(String urlStr, String params) throws IOException {
+        System.out.println("[Auth] POST " + urlStr);
         HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        conn.setConnectTimeout(15000);
+        conn.setReadTimeout(15000);
         conn.setDoOutput(true);
 
         try (OutputStream os = conn.getOutputStream()) {
             os.write(params.getBytes(StandardCharsets.UTF_8));
+        }
+
+        int responseCode = conn.getResponseCode();
+        System.out.println("[Auth] Response: " + responseCode);
+        
+        if (responseCode >= 400) {
+            String error = readResponse(conn);
+            System.err.println("[Auth] Error response: " + error);
+            throw new IOException("HTTP " + responseCode + ": " + error);
         }
 
         return readResponse(conn);

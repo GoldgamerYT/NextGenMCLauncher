@@ -112,17 +112,21 @@ public class HeadlessServer {
         // Start Device Code Flow
         app.post("/api/auth/device-code", ctx -> {
             try {
+                System.out.println("[API] Starting device code flow...");
                 pendingDeviceCode = authenticator.startDeviceCodeFlow();
-                ctx.json(new java.util.HashMap<String, Object>() {{
-                    put("userCode", pendingDeviceCode.userCode);
-                    put("verificationUri", pendingDeviceCode.verificationUri);
-                    put("expiresIn", pendingDeviceCode.expiresIn);
-                }});
+                System.out.println("[API] Got device code: " + pendingDeviceCode.userCode);
+                
+                java.util.Map<String, Object> response = new java.util.HashMap<>();
+                response.put("userCode", pendingDeviceCode.userCode);
+                response.put("verificationUri", pendingDeviceCode.verificationUri);
+                response.put("expiresIn", pendingDeviceCode.expiresIn);
+                
+                ctx.json(response);
+                System.out.println("[API] Response sent: " + gson.toJson(response));
             } catch (Exception e) {
+                System.err.println("[API] Auth error: " + e.getMessage());
                 e.printStackTrace();
-                ctx.status(500).json(new java.util.HashMap<String, String>() {{
-                    put("error", e.getMessage());
-                }});
+                ctx.status(500).json(java.util.Map.of("error", e.getMessage()));
             }
         });
 
