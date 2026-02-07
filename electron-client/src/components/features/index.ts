@@ -1,5 +1,2 @@
-// Profiles
-export * from './Profiles';
-
-// Launcher
-export { LaunchButton } from './Launcher/LaunchButton';
+// Features are handled by main components
+// This file is kept for backwards compatibility but exports nothing

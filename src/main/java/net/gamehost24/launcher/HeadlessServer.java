@@ -1,10 +1,16 @@
 package net.gamehost24.launcher;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.websocket.WsContext;
+import net.gamehost24.launcher.auth.MicrosoftAuthenticator;
+import net.gamehost24.launcher.auth.MicrosoftAuthenticator.DeviceCodeResponse;
+import net.gamehost24.launcher.auth.MicrosoftAuthenticator.MinecraftAccount;
 import net.gamehost24.launcher.core.LauncherEngine;
+import net.gamehost24.launcher.core.NeoForgeManager;
+import net.gamehost24.launcher.mods.CurseForgeClient;
 import net.gamehost24.launcher.core.ProfileManager;
 import net.gamehost24.launcher.core.VersionManager;
 import net.gamehost24.launcher.model.Profile;
@@ -26,7 +32,13 @@ public class HeadlessServer {
     private static LauncherEngine launcherEngine;
     private static VersionManager versionManager;
     private static net.gamehost24.launcher.core.ConfigManager configManager;
+    private static MicrosoftAuthenticator authenticator;
+    private static NeoForgeManager neoForgeManager;
+    private static CurseForgeClient curseForgeClient;
     private static final Gson gson = new Gson();
+    
+    // Store pending device code for polling
+    private static DeviceCodeResponse pendingDeviceCode = null;
 
     // Track WebSocket clients to broadcast logs
     private static final Set<WsContext> wsClients = ConcurrentHashMap.newKeySet();
@@ -39,6 +51,12 @@ public class HeadlessServer {
         launcherEngine = new LauncherEngine();
         versionManager = new VersionManager();
         configManager = new net.gamehost24.launcher.core.ConfigManager();
+        authenticator = new MicrosoftAuthenticator();
+        neoForgeManager = new NeoForgeManager();
+        curseForgeClient = new CurseForgeClient();
+        
+        // Connect authenticator to launcher engine
+        launcherEngine.setAuthenticator(authenticator);
 
         // Start Javalin
         Javalin app = Javalin.create(config -> {
@@ -84,6 +102,126 @@ public class HeadlessServer {
                         net.gamehost24.launcher.model.LauncherConfig.class);
                 configManager.updateConfig(newConfig);
                 ctx.json(newConfig);
+            } catch (Exception e) {
+                ctx.status(500).result(e.getMessage());
+            }
+        });
+
+        // === AUTHENTICATION ENDPOINTS ===
+        
+        // Start Device Code Flow
+        app.post("/api/auth/device-code", ctx -> {
+            try {
+                pendingDeviceCode = authenticator.startDeviceCodeFlow();
+                ctx.json(new java.util.HashMap<String, Object>() {{
+                    put("userCode", pendingDeviceCode.userCode);
+                    put("verificationUri", pendingDeviceCode.verificationUri);
+                    put("expiresIn", pendingDeviceCode.expiresIn);
+                }});
+            } catch (Exception e) {
+                e.printStackTrace();
+                ctx.status(500).json(new java.util.HashMap<String, String>() {{
+                    put("error", e.getMessage());
+                }});
+            }
+        });
+
+        // Poll for token (returns account on success)
+        app.get("/api/auth/poll", ctx -> {
+            if (pendingDeviceCode == null) {
+                ctx.status(400).json(new java.util.HashMap<String, String>() {{
+                    put("error", "No pending device code. Start flow first.");
+                }});
+                return;
+            }
+
+            // This is a simplified sync poll - frontend should call this periodically
+            try {
+                java.util.concurrent.CompletableFuture<MinecraftAccount> future = authenticator.pollForToken(pendingDeviceCode);
+                
+                // Wait up to 2 seconds for this poll cycle
+                try {
+                    MinecraftAccount account = future.get(2, java.util.concurrent.TimeUnit.SECONDS);
+                    pendingDeviceCode = null;
+                    ctx.json(new java.util.HashMap<String, Object>() {{
+                        put("status", "success");
+                        put("account", new java.util.HashMap<String, String>() {{
+                            put("uuid", account.uuid);
+                            put("username", account.username);
+                            put("skinUrl", account.skinUrl);
+                        }});
+                    }});
+                } catch (java.util.concurrent.TimeoutException e) {
+                    ctx.json(new java.util.HashMap<String, String>() {{
+                        put("status", "pending");
+                    }});
+                }
+            } catch (Exception e) {
+                pendingDeviceCode = null;
+                ctx.status(500).json(new java.util.HashMap<String, String>() {{
+                    put("error", e.getMessage());
+                }});
+            }
+        });
+
+        // Get all accounts
+        app.get("/api/auth/accounts", ctx -> {
+            java.util.List<java.util.Map<String, Object>> accountList = new java.util.ArrayList<>();
+            for (MinecraftAccount acc : authenticator.getAccounts()) {
+                java.util.Map<String, Object> map = new java.util.HashMap<>();
+                map.put("uuid", acc.uuid);
+                map.put("username", acc.username);
+                map.put("skinUrl", acc.skinUrl);
+                map.put("selected", authenticator.getCurrentAccount() != null && 
+                         authenticator.getCurrentAccount().uuid.equals(acc.uuid));
+                accountList.add(map);
+            }
+            ctx.json(accountList);
+        });
+
+        // Get current account
+        app.get("/api/auth/current", ctx -> {
+            MinecraftAccount current = authenticator.getCurrentAccount();
+            if (current == null) {
+                ctx.status(404).json(new java.util.HashMap<String, String>() {{
+                    put("error", "No account selected");
+                }});
+                return;
+            }
+            ctx.json(new java.util.HashMap<String, Object>() {{
+                put("uuid", current.uuid);
+                put("username", current.username);
+                put("skinUrl", current.skinUrl);
+            }});
+        });
+
+        // Select account
+        app.post("/api/auth/select/{uuid}", ctx -> {
+            String uuid = ctx.pathParam("uuid");
+            authenticator.selectAccount(uuid);
+            ctx.status(200).result("OK");
+        });
+
+        // Remove account
+        app.delete("/api/auth/accounts/{uuid}", ctx -> {
+            String uuid = ctx.pathParam("uuid");
+            authenticator.removeAccount(uuid);
+            ctx.status(204);
+        });
+
+        // Refresh token
+        app.post("/api/auth/refresh", ctx -> {
+            MinecraftAccount current = authenticator.getCurrentAccount();
+            if (current == null) {
+                ctx.status(400).result("No account to refresh");
+                return;
+            }
+            try {
+                MinecraftAccount refreshed = authenticator.refreshAccount(current);
+                ctx.json(new java.util.HashMap<String, Object>() {{
+                    put("uuid", refreshed.uuid);
+                    put("username", refreshed.username);
+                }});
             } catch (Exception e) {
                 ctx.status(500).result(e.getMessage());
             }
@@ -392,6 +530,85 @@ public class HeadlessServer {
              }
         });
 
+        // === CURSEFORGE ENDPOINTS ===
+        
+        // Search CurseForge mods
+        app.get("/api/curseforge/search", ctx -> {
+            String query = ctx.queryParam("q");
+            String mcVersion = ctx.queryParam("version");
+            String loader = ctx.queryParam("loader");
+            int limit = 20;
+            try {
+                String limitParam = ctx.queryParam("limit");
+                if (limitParam != null) limit = Integer.parseInt(limitParam);
+            } catch (NumberFormatException ignored) {}
+
+            try {
+                java.util.List<CurseForgeClient.CurseForgeMod> mods = 
+                    curseForgeClient.searchMods(query, mcVersion, loader, limit);
+                ctx.json(mods);
+            } catch (Exception e) {
+                ctx.status(500).json(new java.util.HashMap<String, String>() {{
+                    put("error", e.getMessage());
+                }});
+            }
+        });
+
+        // Get CurseForge mod details
+        app.get("/api/curseforge/mods/{id}", ctx -> {
+            int modId = Integer.parseInt(ctx.pathParam("id"));
+            try {
+                CurseForgeClient.CurseForgeMod mod = curseForgeClient.getModDetails(modId);
+                ctx.json(mod);
+            } catch (Exception e) {
+                ctx.status(500).result(e.getMessage());
+            }
+        });
+
+        // Get CurseForge mod files
+        app.get("/api/curseforge/mods/{id}/files", ctx -> {
+            int modId = Integer.parseInt(ctx.pathParam("id"));
+            String mcVersion = ctx.queryParam("version");
+            String loader = ctx.queryParam("loader");
+            try {
+                java.util.List<CurseForgeClient.CurseForgeFile> files = 
+                    curseForgeClient.getModFiles(modId, mcVersion, loader);
+                ctx.json(files);
+            } catch (Exception e) {
+                ctx.status(500).result(e.getMessage());
+            }
+        });
+
+        // Install CurseForge mod to profile
+        app.post("/api/curseforge/install/{profileName}", ctx -> {
+            String profileName = ctx.pathParam("profileName");
+            Profile p = profileManager.getProfile(profileName);
+            if (p == null) {
+                ctx.status(404).result("Profile not found");
+                return;
+            }
+
+            JsonObject body = gson.fromJson(ctx.body(), JsonObject.class);
+            int fileId = body.get("fileId").getAsInt();
+            String fileName = body.get("fileName").getAsString();
+            String downloadUrl = body.has("downloadUrl") ? body.get("downloadUrl").getAsString() : null;
+
+            File modsDir = new File(p.getGameDir(), "mods");
+            
+            CurseForgeClient.CurseForgeFile file = new CurseForgeClient.CurseForgeFile();
+            file.id = fileId;
+            file.fileName = fileName;
+            file.downloadUrl = downloadUrl;
+
+            try {
+                curseForgeClient.downloadFile(file, modsDir);
+                broadcast("log", profileName, "Installed from CurseForge: " + fileName);
+                ctx.status(200).result("Installed");
+            } catch (Exception e) {
+                ctx.status(500).result("Download failed: " + e.getMessage());
+            }
+        });
+
         // 6. Launch Profile
         app.post("/api/launch/{name}", ctx -> {
             String name = ctx.pathParam("name");
@@ -501,6 +718,14 @@ public class HeadlessServer {
                     public void retry(Throwable e, int c, int m) {
                     }
                 });
+            } else if ("neoforge".equalsIgnoreCase(type)) {
+                // NeoForge uses synchronous fetch
+                try {
+                    List<String> versions = neoForgeManager.fetchVersions(mcVersion);
+                    future.complete(versions);
+                } catch (Exception e) {
+                    future.completeExceptionally(e);
+                }
             } else {
                 ctx.json(java.util.Collections.emptyList());
                 return;
@@ -545,6 +770,20 @@ public class HeadlessServer {
                 versionId = "fabric-loader-" + loaderVer + "-" + p.getVersion();
             } else if ("forge".equalsIgnoreCase(loader) && loaderVer != null && !loaderVer.isEmpty()) {
                 versionId = p.getVersion() + "-forge-" + loaderVer;
+            } else if ("neoforge".equalsIgnoreCase(loader) && loaderVer != null && !loaderVer.isEmpty()) {
+                // NeoForge needs special handling - install first if needed
+                File gameDir = new File(p.getGameDir());
+                if (!neoForgeManager.isInstalled(loaderVer, gameDir)) {
+                    broadcast("log", p.getName(), "Installing NeoForge " + loaderVer + "...");
+                    try {
+                        neoForgeManager.install(loaderVer, gameDir);
+                    } catch (Exception e) {
+                        broadcast("error", p.getName(), "NeoForge install failed: " + e.getMessage());
+                        broadcast("status", p.getName(), "stopped");
+                        return;
+                    }
+                }
+                versionId = neoForgeManager.getVersionId(p.getVersion(), loaderVer);
             }
 
             final String finalVid = versionId;

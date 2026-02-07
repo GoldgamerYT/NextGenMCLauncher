@@ -1,59 +1,34 @@
 import { create } from 'zustand';
+import axios from 'axios';
 
-export interface MCVersion {
-  id: string;
-  name: string;
-  type: 'release' | 'snapshot';
-  releaseTime: Date;
-  loaders?: {
-    forge?: string[];
-    fabric?: string[];
-    neoforge?: string[];
-  };
-}
+const API_URL = 'http://localhost:35555/api';
 
 interface VersionState {
-  versions: MCVersion[];
-  forgeVersions: string[];
-  fabricVersions: string[];
-  neoforgeVersions: string[];
+  versions: string[];
   loading: boolean;
   error: string | null;
-  lastFetch?: Date;
   
   // Actions
-  setVersions: (versions: MCVersion[]) => void;
-  setForgeVersions: (versions: string[]) => void;
-  setFabricVersions: (versions: string[]) => void;
-  setNeoforgeVersions: (versions: string[]) => void;
+  loadVersions: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
-  setLastFetch: (date: Date) => void;
-  clearError: () => void;
 }
 
 export const useVersionStore = create<VersionState>((set) => ({
   versions: [],
-  forgeVersions: [],
-  fabricVersions: [],
-  neoforgeVersions: [],
   loading: false,
   error: null,
-  lastFetch: undefined,
   
-  setVersions: (versions) => set({ versions, error: null }),
-  
-  setForgeVersions: (versions) => set({ forgeVersions: versions, error: null }),
-  
-  setFabricVersions: (versions) => set({ fabricVersions: versions, error: null }),
-  
-  setNeoforgeVersions: (versions) => set({ neoforgeVersions: versions, error: null }),
+  loadVersions: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.get<string[]>(`${API_URL}/versions/game`);
+      set({ versions: res.data || [], loading: false });
+    } catch (e: any) {
+      set({ error: e.message, loading: false });
+    }
+  },
   
   setLoading: (loading) => set({ loading }),
-  
   setError: (error) => set({ error }),
-  
-  setLastFetch: (date) => set({ lastFetch: date }),
-  
-  clearError: () => set({ error: null }),
 }));

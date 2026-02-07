@@ -7,7 +7,9 @@ import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.JavaEnvironment;
+import net.gamehost24.launcher.auth.MicrosoftAuthenticator;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
+import org.to2mbn.jmccc.auth.Authenticator;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,9 +18,19 @@ public class LauncherEngine {
 
     private final java.util.Map<String, Process> runningProcesses = new java.util.concurrent.ConcurrentHashMap<>();
     private Launcher launcher;
+    private Authenticator authenticator;
 
     public LauncherEngine() {
         this.launcher = LauncherBuilder.create().build();
+        this.authenticator = null; // Will be set via setAuthenticator
+    }
+
+    public void setAuthenticator(Authenticator authenticator) {
+        this.authenticator = authenticator;
+    }
+
+    public Authenticator getAuthenticator() {
+        return this.authenticator;
     }
 
     public void launch(Profile profile) throws IOException, org.to2mbn.jmccc.launch.LaunchException {
@@ -55,8 +67,16 @@ public class LauncherEngine {
         File gameDir = new File(profile.getGameDir());
         MinecraftDirectory mcDir = new MinecraftDirectory(gameDir);
 
-        // Use OfflineAuthenticator for now as requested
-        LaunchOption option = new LaunchOption(versionId, OfflineAuthenticator.name("Player"), mcDir);
+        // Use real authenticator if available, otherwise offline mode
+        Authenticator auth;
+        if (this.authenticator != null) {
+            auth = this.authenticator;
+            System.out.println("Launching with Microsoft account");
+        } else {
+            auth = OfflineAuthenticator.name("Player");
+            System.out.println("Warning: No account logged in. Launching in offline mode.");
+        }
+        LaunchOption option = new LaunchOption(versionId, auth, mcDir);
         option.setMaxMemory(profile.getRamMb());
 
         File javaExec = null;

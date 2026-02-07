@@ -4,7 +4,7 @@ export interface Mod {
   id: string;
   name: string;
   version: string;
-  loader: 'forge' | 'fabric' | 'neoforge';
+  loader: string;
   mcVersion: string;
   source: 'modrinth' | 'curseforge';
   downloadUrl: string;
@@ -26,6 +26,7 @@ interface ModState {
   error: string | null;
   
   // Actions
+  loadMods: () => Promise<void>;
   setSearchResults: (mods: Mod[]) => void;
   setInstalledMods: (mods: InstalledMod[]) => void;
   addInstalledMod: (mod: InstalledMod) => void;
@@ -44,6 +45,11 @@ export const useModStore = create<ModState>((set) => ({
   loading: false,
   searching: false,
   error: null,
+  
+  // Mods are loaded per-profile in ModCenter, this is just a placeholder
+  loadMods: async () => {
+    // No global mod loading needed
+  },
   
   setSearchResults: (mods) => set({ searchResults: mods, error: null }),
   

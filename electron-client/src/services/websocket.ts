@@ -169,3 +169,4 @@ export class GameWebSocketClient {
 
 // Export singleton instance
 export const gameWs = new GameWebSocketClient();
+export const wsClient = gameWs; // Alias for compatibility

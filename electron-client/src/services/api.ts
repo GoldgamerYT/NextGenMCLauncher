@@ -16,11 +16,10 @@ export const api: AxiosInstance = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    const uiStore = useUIStore();
+    const uiStore = useUIStore.getState();
     
-    const message = error.response?.data?.error 
-      || error.message 
-      || 'An error occurred';
+    const data = error.response?.data as any;
+    const message = data?.error || error.message || 'An error occurred';
     
     uiStore.addNotification({
       type: 'error',

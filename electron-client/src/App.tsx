@@ -7,6 +7,7 @@ import { GlobalSettings } from './components/GlobalSettings';
 import { ProfileCard } from './components/ProfileCard';
 import { AddProfileModal } from './components/AddProfileModal';
 import { SettingsModal } from './components/SettingsModal';
+import { LoginModal } from './components/LoginModal';
 
 // Zustand Stores
 import { useProfileStore } from './stores/profileStore';
@@ -16,7 +17,7 @@ import { useAccountStore } from './stores/accountStore';
 import { useUIStore } from './stores/uiStore';
 
 // Services
-import { api } from './services/api';
+import { api } from './api';
 import { wsClient } from './services/websocket';
 
 import clsx from 'clsx';
@@ -33,11 +34,12 @@ function App() {
   const [editingProfile, setEditingProfile] = useState<any>(null);
   const [modCenterProfile, setModCenterProfile] = useState<any>(null);
   const [gridScale, setGridScale] = useState(1.0);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   // Store Hooks
-  const { profiles, currentProfile, setCurrentProfile, addProfile, deleteProfile } = useProfileStore();
-  const { versions, loadVersions } = useVersionStore();
-  const { mods, loadMods } = useModStore();
+  const { profiles, currentProfile, setCurrentProfile, loadProfiles, deleteProfile, setProfileStatus } = useProfileStore();
+  const { loadVersions } = useVersionStore();
+  const { loadMods } = useModStore();
   const { currentAccount, logout } = useAccountStore();
   const { notifications, isLaunching, gameLogs, addNotification } = useUIStore();
 
@@ -45,6 +47,9 @@ function App() {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // Load profiles from backend
+        await loadProfiles();
+
         // Load versions
         await loadVersions();
 
@@ -53,19 +58,27 @@ function App() {
 
         // Connect WebSocket for real-time logs
         wsClient.connect();
+        
+        // Handle WebSocket status updates
+        wsClient.on('status', (msg) => {
+          if (msg.profile && msg.payload) {
+            setProfileStatus(msg.profile, msg.payload as any);
+          }
+        });
 
         // Load grid config
-        const config = await api.config.get();
-        if (config.data?.gridScale) {
-          setGridScale(config.data.gridScale);
+        try {
+          const config = await api.getConfig();
+          if (config?.gridScale) {
+            setGridScale(config.gridScale);
+          }
+        } catch (e) {
+          console.log('Config load failed, using defaults');
         }
       } catch (error) {
         console.error('Failed to initialize app:', error);
-        addNotification({
-          id: Date.now().toString(),
-          type: 'error',
+        addNotification({type: 'error',
           message: 'Failed to initialize application',
-          timestamp: new Date(),
         });
       }
     };
@@ -81,19 +94,13 @@ function App() {
   const handleDeleteProfile = async (profileId: string) => {
     try {
       await deleteProfile(profileId);
-      addNotification({
-        id: Date.now().toString(),
-        type: 'success',
+      addNotification({type: 'success',
         message: 'Profile deleted',
-        timestamp: new Date(),
         duration: 3000,
       });
     } catch (error: any) {
-      addNotification({
-        id: Date.now().toString(),
-        type: 'error',
+      addNotification({type: 'error',
         message: error.message || 'Failed to delete profile',
-        timestamp: new Date(),
         duration: 5000,
       });
     }
@@ -102,11 +109,8 @@ function App() {
   const handleLogout = async () => {
     try {
       await logout();
-      addNotification({
-        id: Date.now().toString(),
-        type: 'success',
+      addNotification({type: 'success',
         message: 'Logged out',
-        timestamp: new Date(),
         duration: 2000,
       });
     } catch (error) {
@@ -167,7 +171,13 @@ function App() {
             ) : (
               <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                 <p className="text-xs text-amber-300">Not logged in</p>
-                <p className="text-xs text-white/60 mt-1">Login to play</p>
+                <p className="text-xs text-white/60 mt-1">Login to play online</p>
+                <button
+                  onClick={() => setIsLoginOpen(true)}
+                  className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 transition-colors font-medium"
+                >
+                  Sign In
+                </button>
               </div>
             )}
           </div>
@@ -307,6 +317,18 @@ function App() {
         />
       )}
 
+      {isLoginOpen && (
+        <LoginModal
+          onClose={() => setIsLoginOpen(false)}
+          onSuccess={() => {
+            addNotification({type: 'success',
+              message: 'Successfully logged in!',
+              duration: 3000,
+            });
+          }}
+        />
+      )}
+
       {/* Notification Toast Container */}
       <div className="fixed bottom-4 right-4 space-y-2 z-50 pointer-events-none">
         {notifications.slice(-3).map((notification) => (
@@ -380,3 +402,4 @@ function NavButton({ active, onClick, icon: Icon, label }: NavButtonProps) {
 }
 
 export default App;
+
