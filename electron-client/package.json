@@ -32,16 +32,36 @@
         },
         "win": {
             "target": [
-                { "target": "nsis", "arch": ["x64"] },
-                { "target": "nsis", "arch": ["arm64"] }
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "arm64"
+                    ]
+                }
             ],
             "icon": "src/assets/icon-512.png",
             "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
         },
         "mac": {
             "target": [
-                { "target": "dmg", "arch": ["arm64"] },
-                { "target": "dmg", "arch": ["x64"] }
+                {
+                    "target": "dmg",
+                    "arch": [
+                        "arm64"
+                    ]
+                },
+                {
+                    "target": "dmg",
+                    "arch": [
+                        "x64"
+                    ]
+                }
             ],
             "icon": "src/assets/icon-512.icns",
             "category": "public.app-category.games",
@@ -52,17 +72,49 @@
         "dmg": {
             "background": null,
             "contents": [
-                { "x": 130, "y": 220, "type": "file" },
-                { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+                {
+                    "x": 130,
+                    "y": 220,
+                    "type": "file"
+                },
+                {
+                    "x": 410,
+                    "y": 220,
+                    "type": "link",
+                    "path": "/Applications"
+                }
             ],
-            "window": { "width": 540, "height": 380 }
+            "window": {
+                "width": 540,
+                "height": 380
+            }
         },
         "linux": {
             "target": [
-                { "target": "AppImage", "arch": ["x64"] },
-                { "target": "deb",      "arch": ["x64"] },
-                { "target": "AppImage", "arch": ["arm64"] },
-                { "target": "deb",      "arch": ["arm64"] }
+                {
+                    "target": "AppImage",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "deb",
+                    "arch": [
+                        "x64"
+                    ]
+                },
+                {
+                    "target": "AppImage",
+                    "arch": [
+                        "arm64"
+                    ]
+                },
+                {
+                    "target": "deb",
+                    "arch": [
+                        "arm64"
+                    ]
+                }
             ],
             "icon": "src/assets/icon-512.png",
             "category": "Game",
@@ -101,7 +153,9 @@
             {
                 "from": "jre",
                 "to": "jre",
-                "filter": ["**/*"]
+                "filter": [
+                    "**/*"
+                ]
             },
             {
                 "from": "src/assets/icon-512.png",
@@ -125,7 +179,8 @@
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-use-websocket": "^4.8.1",
-        "tailwind-merge": "^2.2.1"
+        "tailwind-merge": "^2.2.1",
+        "zustand": "^4.5.7"
     },
     "devDependencies": {
         "@types/react": "^18.2.64",
