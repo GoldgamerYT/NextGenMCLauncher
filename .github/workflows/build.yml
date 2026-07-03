@@ -1,0 +1,252 @@
+name: Build Installers
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ─── Windows x64 + arm64 ────────────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21 (build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron-client/package-lock.json
+
+      - name: Build backend JAR
+        run: ./gradlew.bat jar --quiet
+
+      - name: Install frontend deps
+        working-directory: electron-client
+        run: npm ci
+
+      - name: Download bundled JRE (Windows x64)
+        shell: pwsh
+        run: |
+          $jreDir = "electron-client\jre-x64"
+          Invoke-WebRequest `
+            -Uri "https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jre/hotspot/normal/eclipse" `
+            -OutFile "$env:TEMP\temurin-win-x64.zip" -UseBasicParsing
+          Expand-Archive "$env:TEMP\temurin-win-x64.zip" -DestinationPath "$env:TEMP\jre-x64-extract" -Force
+          $inner = Get-ChildItem "$env:TEMP\jre-x64-extract" -Directory | Select-Object -First 1
+          Move-Item $inner.FullName $jreDir
+
+      - name: Download bundled JRE (Windows arm64)
+        shell: pwsh
+        run: |
+          $jreDir = "electron-client\jre-arm64"
+          Invoke-WebRequest `
+            -Uri "https://api.adoptium.net/v3/binary/latest/21/ga/windows/aarch64/jre/hotspot/normal/eclipse" `
+            -OutFile "$env:TEMP\temurin-win-arm64.zip" -UseBasicParsing
+          Expand-Archive "$env:TEMP\temurin-win-arm64.zip" -DestinationPath "$env:TEMP\jre-arm64-extract" -Force
+          $inner = Get-ChildItem "$env:TEMP\jre-arm64-extract" -Directory | Select-Object -First 1
+          Move-Item $inner.FullName $jreDir
+
+      - name: Build Windows x64 installer
+        working-directory: electron-client
+        shell: pwsh
+        run: |
+          Copy-Item jre-x64 jre -Recurse
+          npm run "electron:build:win:x64"
+          Remove-Item jre -Recurse -Force
+
+      - name: Build Windows arm64 installer
+        working-directory: electron-client
+        shell: pwsh
+        run: |
+          Copy-Item jre-arm64 jre -Recurse
+          npm run "electron:build:win:arm64"
+          Remove-Item jre -Recurse -Force
+
+      - name: Upload Windows installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: |
+            electron-client/release/*.exe
+          if-no-files-found: error
+
+  # ─── Linux x64 ──────────────────────────────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21 (build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron-client/package-lock.json
+
+      - name: Build backend JAR
+        run: ./gradlew jar --quiet
+
+      - name: Install frontend deps
+        working-directory: electron-client
+        run: npm ci
+
+      - name: Download bundled JRE (Linux x64)
+        run: |
+          curl -L "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jre/hotspot/normal/eclipse" \
+            -o /tmp/temurin-linux-x64.tar.gz
+          mkdir -p /tmp/jre-x64-extract
+          tar -xzf /tmp/temurin-linux-x64.tar.gz -C /tmp/jre-x64-extract
+          inner=$(find /tmp/jre-x64-extract -maxdepth 1 -mindepth 1 -type d | head -1)
+          mv "$inner" electron-client/jre
+
+      - name: Build Linux AppImage + deb
+        working-directory: electron-client
+        run: npm run "electron:build:linux:x64"
+
+      - name: Upload Linux installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-installers
+          path: |
+            electron-client/release/*.AppImage
+            electron-client/release/*.deb
+          if-no-files-found: error
+
+  # ─── macOS arm64 + x64 ──────────────────────────────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21 (build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: electron-client/package-lock.json
+
+      - name: Build backend JAR
+        run: ./gradlew jar --quiet
+
+      - name: Install frontend deps
+        working-directory: electron-client
+        run: npm ci
+
+      - name: Create .icns icon
+        run: |
+          ASSETS="electron-client/src/assets"
+          ICONSET=$(mktemp -d)/AppIcon.iconset
+          mkdir "$ICONSET"
+          for SIZE in 16 32 64 128 256 512; do
+            sips -z $SIZE $SIZE "$ASSETS/icon-512.png" --out "$ICONSET/icon_${SIZE}x${SIZE}.png" &>/dev/null
+            DOUBLE=$((SIZE * 2))
+            [ $DOUBLE -le 1024 ] && sips -z $DOUBLE $DOUBLE "$ASSETS/icon-512.png" --out "$ICONSET/icon_${SIZE}x${SIZE}@2x.png" &>/dev/null
+          done
+          iconutil -c icns "$ICONSET" -o "$ASSETS/icon-512.icns"
+
+      - name: Download bundled JRE (macOS arm64)
+        run: |
+          curl -L "https://api.adoptium.net/v3/binary/latest/21/ga/mac/aarch64/jre/hotspot/normal/eclipse" \
+            -o /tmp/temurin-mac-arm64.tar.gz
+          mkdir -p /tmp/jre-arm64-extract
+          tar -xzf /tmp/temurin-mac-arm64.tar.gz -C /tmp/jre-arm64-extract
+          inner=$(find /tmp/jre-arm64-extract -path "*/Contents/Home" -type d | head -1)
+          [ -z "$inner" ] && inner=$(find /tmp/jre-arm64-extract -maxdepth 1 -mindepth 1 -type d | head -1)
+          cp -R "$inner" electron-client/jre-arm64
+
+      - name: Download bundled JRE (macOS x64)
+        run: |
+          curl -L "https://api.adoptium.net/v3/binary/latest/21/ga/mac/x64/jre/hotspot/normal/eclipse" \
+            -o /tmp/temurin-mac-x64.tar.gz
+          mkdir -p /tmp/jre-x64-extract
+          tar -xzf /tmp/temurin-mac-x64.tar.gz -C /tmp/jre-x64-extract
+          inner=$(find /tmp/jre-x64-extract -path "*/Contents/Home" -type d | head -1)
+          [ -z "$inner" ] && inner=$(find /tmp/jre-x64-extract -maxdepth 1 -mindepth 1 -type d | head -1)
+          cp -R "$inner" electron-client/jre-x64
+
+      - name: Build macOS arm64 DMG
+        working-directory: electron-client
+        run: |
+          cp -R jre-arm64 jre
+          npm run "electron:build:mac:arm64"
+          rm -rf jre
+
+      - name: Build macOS x64 DMG
+        working-directory: electron-client
+        run: |
+          cp -R jre-x64 jre
+          npm run "electron:build:mac:x64"
+          rm -rf jre
+
+      - name: Upload macOS DMGs
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-installers
+          path: |
+            electron-client/release/*.dmg
+          if-no-files-found: error
+
+  # ─── GitHub Release ──────────────────────────────────────────────────────────
+  release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: List built files
+        run: find dist -type f | sort
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Atlas Craft ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+          files: |
+            dist/windows-installers/*.exe
+            dist/linux-installers/*.AppImage
+            dist/linux-installers/*.deb
+            dist/macos-installers/*.dmg
+          body: |
+            ## Atlas Craft ${{ github.ref_name }}
+
+            ### Download
+            | Plattform | Datei |
+            |-----------|-------|
+            | Windows x64 | `Atlas Craft-Setup-1.0.0-x64.exe` |
+            | Windows arm64 | `Atlas Craft-Setup-1.0.0-arm64.exe` |
+            | Linux x64 | `Atlas Craft-1.0.0-linux-x86_64.AppImage` |
+            | Linux x64 | `Atlas Craft-1.0.0-linux-amd64.deb` |
+            | macOS Apple Silicon | `Atlas Craft-1.0.0-mac-arm64.dmg` |
+            | macOS Intel | `Atlas Craft-1.0.0-mac-x64.dmg` |
+
+            ### Linux Hinweis
+            AppImage benötigt FUSE: `sudo apt install libfuse2`

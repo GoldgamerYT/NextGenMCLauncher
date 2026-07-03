@@ -2,15 +2,186 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── VALIDATION TOOLTIP ───────────────────────────────────────────────────── */
+
+@keyframes tooltip-pop-in {
+  0%   { transform: translateY(-6px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+@keyframes tooltip-pop-out {
+  0%   { transform: translateY(0);    opacity: 1; }
+  100% { transform: translateY(-6px); opacity: 0; }
+}
+@keyframes drain-rect {
+  from { stroke-dashoffset: 0;   }
+  to   { stroke-dashoffset: 100; }
+}
+
+.validation-tooltip-in {
+  animation: tooltip-pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.validation-tooltip-out {
+  animation: tooltip-pop-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.validation-rect-drain {
+  animation: drain-rect 10s linear forwards;
+}
+
+/* ── THEME VARIABLES ─────────────────────────────────────────────────────────
+   Used via var(--bg), var(--surface), etc.
+   Tailwind classes handle most styling; these vars are for components
+   that need programmatic access or override. */
+
+:root,
+[data-theme="dark"] {
+  --bg:              #09090b;
+  --surface:         #18181b;
+  --surface2:        #27272a;
+  --surface-hover:   #3f3f46;
+  --border:          rgba(255,255,255,0.07);
+  --border-strong:   rgba(255,255,255,0.12);
+  --text:            rgba(255,255,255,0.87);
+  --text-muted:      #a1a1aa;
+  --text-subtle:     #71717a;
+  --accent:          #22c55e;
+  --accent-muted:    rgba(34,197,94,0.15);
+  --accent-glow:     rgba(34,197,94,0.4);
+  --danger:          #ef4444;
+  --danger-muted:    rgba(239,68,68,0.15);
+  --warning:         #f59e0b;
+  --warning-muted:   rgba(245,158,11,0.15);
+  --success:         #22c55e;
+  --success-muted:   rgba(34,197,94,0.15);
+
+  color-scheme: dark;
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+[data-theme="light"] {
+  /* Off-white base — not stark white, avoids glare */
+  --bg:              #f0f0f2;
+  /* Card surfaces slightly lighter than bg */
+  --surface:         #fafafa;
+  --surface2:        #ededf0;
+  --surface-hover:   #e2e2e6;
+  /* Borders: visible but subtle */
+  --border:          rgba(0,0,0,0.10);
+  --border-strong:   rgba(0,0,0,0.18);
+  /* Text: near-black for strong contrast */
+  --text:            #1a1a1e;
+  --text-muted:      #4b4b57;
+  --text-subtle:     #6b6b78;
+  /* Accent: Emerald (elegant, not neon) */
+  --accent:          #059669;
+  --accent-muted:    rgba(5,150,105,0.12);
+  --accent-glow:     rgba(5,150,105,0.25);
+  /* Status colours */
+  --danger:          #dc2626;
+  --danger-muted:    rgba(220,38,38,0.10);
+  --warning:         #b45309;
+  --warning-muted:   rgba(180,83,9,0.10);
+  --success:         #059669;
+  --success-muted:   rgba(5,150,105,0.10);
+
+  color-scheme: light;
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+/* ── LIGHT MODE OVERRIDES ────────────────────────────────────────────────────
+   These selectors flip Tailwind's dark-targeted zinc/white colors in light mode.
+   We target the most common patterns from existing components. */
+
+[data-theme="light"] body,
+[data-theme="light"] #root {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Main backgrounds */
+[data-theme="light"] .bg-\[\#09090b\],
+[data-theme="light"] .bg-black\/20,
+[data-theme="light"] .bg-black\/40,
+[data-theme="light"] .bg-black\/60 {
+  background-color: var(--bg) !important;
+}
+
+[data-theme="light"] .bg-zinc-900\/40,
+[data-theme="light"] .bg-zinc-900,
+[data-theme="light"] .bg-\[#0f0f13\] {
+  background-color: var(--surface) !important;
+}
+
+[data-theme="light"] .bg-zinc-800\/50,
+[data-theme="light"] .bg-zinc-800 {
+  background-color: var(--surface2) !important;
+}
+
+[data-theme="light"] .bg-white\/5 { background-color: rgba(0,0,0,0.04) !important; }
+[data-theme="light"] .bg-white\/10 { background-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.02) !important; }
+
+/* Borders */
+[data-theme="light"] .border-white\/5 { border-color: var(--border) !important; }
+[data-theme="light"] .border-white\/10 { border-color: var(--border-strong) !important; }
+
+/* Text */
+[data-theme="light"] .text-white { color: var(--text) !important; }
+[data-theme="light"] .text-zinc-400,
+[data-theme="light"] .text-zinc-500,
+[data-theme="light"] .text-gray-400,
+[data-theme="light"] .text-gray-500 { color: var(--text-muted) !important; }
+[data-theme="light"] .text-zinc-300,
+[data-theme="light"] .text-gray-300 { color: var(--text-subtle) !important; }
+
+/* Hover states */
+[data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgba(0,0,0,0.05) !important; }
+[data-theme="light"] .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] .hover\:text-zinc-300:hover { color: var(--text) !important; }
+[data-theme="light"] .hover\:text-white:hover { color: var(--text) !important; }
+
+/* Sidebar */
+[data-theme="light"] .bg-black\/20.backdrop-blur-xl {
+  background-color: rgba(255,255,255,0.7) !important;
+}
+
+/* Cards */
+[data-theme="light"] .bg-surface {
+  background-color: var(--surface) !important;
+}
+
+/* Title bar */
+[data-theme="light"] .bg-black\/40.backdrop-blur-md {
+  background-color: rgba(255,255,255,0.85) !important;
+  border-color: var(--border) !important;
+}
+
+/* Inputs */
+[data-theme="light"] .bg-zinc-800.border,
+[data-theme="light"] input.bg-zinc-800 {
+  background-color: var(--surface2) !important;
+  color: var(--text) !important;
+}
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  color: var(--text) !important;
+  background-color: var(--surface2) !important;
+}
+
+/* Ambient glows — hide in light mode */
+[data-theme="light"] .bg-green-500\/5,
+[data-theme="light"] .bg-purple-500\/5 {
+  opacity: 0 !important;
+}
+
+/* ── BASE ─────────────────────────────────────────────────────────────────── */
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #09090b;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,14 +193,41 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow: hidden;
-  /* Custom scrollbars */
 }
 
-/* Custom Drag Region for TitleBar */
-.titlebar-drag {
-  -webkit-app-region: drag;
+/* ── CUSTOM DRAG REGIONS ─────────────────────────────────────────────────── */
+.titlebar-drag  { -webkit-app-region: drag; }
+.no-drag        { -webkit-app-region: no-drag; }
+
+/* ── SCROLLBARS — WebKit ─────────────────────────────────────────────────── */
+::-webkit-scrollbar               { width: 6px; height: 6px; }
+::-webkit-scrollbar-track         { background: transparent; margin: 4px; }
+::-webkit-scrollbar-thumb         {
+  background: rgba(255,255,255,0.10);
+  border-radius: 99px;
+  transition: background 0.2s;
+}
+::-webkit-scrollbar-thumb:hover   { background: rgba(255,255,255,0.24); }
+::-webkit-scrollbar-thumb:active  { background: rgba(255,255,255,0.32); }
+::-webkit-scrollbar-corner        { background: transparent; }
+
+[data-theme="light"] ::-webkit-scrollbar-thumb       { background: rgba(0,0,0,0.12); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.26); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:active{ background: rgba(0,0,0,0.36); }
+
+/* ── SCROLLBARS — Firefox ────────────────────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.10) transparent;
+}
+[data-theme="light"] * {
+  scrollbar-color: rgba(0,0,0,0.12) transparent;
 }
 
-.no-drag {
-  -webkit-app-region: no-drag;
-}
+/* ── UTILITY: hide scrollbar visually but keep functionality ─────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── RANGE INPUT STYLING ─────────────────────────────────────────────────── */
+input[type="range"]::-webkit-slider-thumb { cursor: pointer; }
+input[type="range"] { cursor: pointer; }

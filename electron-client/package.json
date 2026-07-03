@@ -2,6 +2,12 @@
     "name": "atlas-craft-client",
     "private": true,
     "version": "1.0.0",
+    "description": "A modern Minecraft launcher with mod management",
+    "author": {
+        "name": "GoldgamerYT",
+        "email": "jeromestebler@gmail.com"
+    },
+    "homepage": "https://github.com/GoldgamerYT/AtlasCraft",
     "main": "electron/main.js",
     "scripts": {
         "dev": "vite",
@@ -10,37 +16,78 @@
         "preview": "vite preview",
         "electron:dev": "concurrently \"npm run dev\" \"wait-on tcp:5173 && electron .\"",
         "electron:build": "npm run build && electron-builder",
-        "electron:publish": "npm run build && electron-builder --publish always"
+        "electron:build:win:x64": "npm run build && electron-builder --win --x64",
+        "electron:build:win:arm64": "npm run build && electron-builder --win --arm64",
+        "electron:build:linux:x64": "npm run build && electron-builder --linux AppImage deb --x64",
+        "electron:build:linux:arm64": "npm run build && electron-builder --linux AppImage deb --arm64",
+        "electron:build:mac:arm64": "npm run build && electron-builder --mac dmg --arm64",
+        "electron:build:mac:x64": "npm run build && electron-builder --mac dmg --x64"
     },
     "build": {
         "appId": "net.gamehost24.launcher",
         "productName": "Atlas Craft",
+        "copyright": "Copyright © 2025 GoldgamerYT",
         "directories": {
             "output": "release"
         },
         "win": {
-            "target": "nsis",
-            "icon": "src/assets/icon-512.png"
+            "target": [
+                { "target": "nsis", "arch": ["x64"] },
+                { "target": "nsis", "arch": ["arm64"] }
+            ],
+            "icon": "src/assets/icon-512.png",
+            "artifactName": "${productName}-Setup-${version}-${arch}.${ext}"
         },
         "mac": {
-            "target": "dmg",
-            "icon": "src/assets/icon-512.png"
+            "target": [
+                { "target": "dmg", "arch": ["arm64"] },
+                { "target": "dmg", "arch": ["x64"] }
+            ],
+            "icon": "src/assets/icon-512.icns",
+            "category": "public.app-category.games",
+            "artifactName": "${productName}-${version}-mac-${arch}.${ext}",
+            "darkModeSupport": true,
+            "minimumSystemVersion": "12.0"
+        },
+        "dmg": {
+            "background": null,
+            "contents": [
+                { "x": 130, "y": 220, "type": "file" },
+                { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+            ],
+            "window": { "width": 540, "height": 380 }
         },
         "linux": {
-            "target": ["AppImage", "deb"],
-            "icon": "src/assets/icon-512.png"
+            "target": [
+                { "target": "AppImage", "arch": ["x64"] },
+                { "target": "deb",      "arch": ["x64"] },
+                { "target": "AppImage", "arch": ["arm64"] },
+                { "target": "deb",      "arch": ["arm64"] }
+            ],
+            "icon": "src/assets/icon-512.png",
+            "category": "Game",
+            "artifactName": "${productName}-${version}-linux-${arch}.${ext}",
+            "desktop": {
+                "Name": "Atlas Craft",
+                "Comment": "Minecraft Launcher",
+                "Categories": "Game;"
+            }
+        },
+        "deb": {
+            "synopsis": "Atlas Craft Minecraft Launcher",
+            "description": "A modern Minecraft launcher with mod management",
+            "maintainer": "GoldgamerYT <jeromestebler@gmail.com>"
         },
         "nsis": {
             "oneClick": false,
+            "perMachine": false,
+            "allowElevation": true,
             "allowToChangeInstallationDirectory": true,
             "createDesktopShortcut": true,
-            "createStartMenuShortcut": true
-        },
-        "publish": {
-            "provider": "github",
-            "owner": "gamehost24",
-            "repo": "atlas-craft",
-            "releaseType": "release"
+            "createStartMenuShortcut": true,
+            "shortcutName": "Atlas Craft",
+            "deleteAppDataOnUninstall": false,
+            "include": "build/installer.nsh"
         },
         "files": [
             "dist/**/*",
@@ -50,20 +97,35 @@
             {
                 "from": "../build/libs/MCLauncher-1.0-SNAPSHOT.jar",
                 "to": "backend.jar"
+            },
+            {
+                "from": "jre",
+                "to": "jre",
+                "filter": ["**/*"]
+            },
+            {
+                "from": "src/assets/icon-512.png",
+                "to": "icon-512.png"
             }
-        ]
+        ],
+        "compression": "maximum",
+        "publish": {
+            "provider": "github",
+            "owner": "GoldgamerYT",
+            "repo": "NextGenMCLauncher"
+        }
     },
     "dependencies": {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "lucide-react": "^0.344.0",
-        "framer-motion": "^11.0.8",
         "axios": "^1.6.7",
         "clsx": "^2.1.0",
-        "tailwind-merge": "^2.2.1",
+        "discord-rpc": "^4.0.1",
+        "electron-updater": "^6.3.9",
+        "framer-motion": "^11.0.8",
+        "lucide-react": "^0.344.0",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
         "react-use-websocket": "^4.8.1",
-        "zustand": "^4.4.7",
-        "electron-updater": "^6.1.7"
+        "tailwind-merge": "^2.2.1"
     },
     "devDependencies": {
         "@types/react": "^18.2.64",

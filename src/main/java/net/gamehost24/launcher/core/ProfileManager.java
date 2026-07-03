@@ -51,8 +51,11 @@ public class ProfileManager {
     public void saveProfiles() {
         try (Writer writer = new FileWriter(PROFILES_FILE)) {
             GSON.toJson(profiles, writer);
+            System.out.println("[ProfileManager] Saved " + profiles.size() + " profiles to " + PROFILES_FILE.getAbsolutePath());
         } catch (IOException e) {
+            System.err.println("[ProfileManager] FAILED to save profiles: " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("Failed to save profiles: " + e.getMessage(), e);
         }
     }
 
