@@ -13,6 +13,7 @@ repositories {
 dependencies {
     implementation("dev.3-3:jmccc:3.1.4")
     implementation("dev.3-3:jmccc-mcdownloader:3.1.4")
+    implementation("dev.3-3:jmccc-microsoft-authenticator:3.1.4")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.formdev:flatlaf:3.2.5")
     implementation("io.javalin:javalin:6.1.3")

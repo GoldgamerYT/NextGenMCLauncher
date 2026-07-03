@@ -1,5 +1,13 @@
 {
-  "defaultRamMb": 65152,
+  "defaultRamMb": 65219,
+  "minRamMb": 256,
   "defaultJavaPath": "",
-  "gridScale": 1.0
+  "jvmArgs": "",
+  "defaultGameDir": "",
+  "gridScale": 0.7,
+  "windowWidth": 854,
+  "windowHeight": 480,
+  "fullscreen": false,
+  "autoStartLast": false,
+  "microsoftClientId": "d51b460a-0b8a-4696-af4d-690f7ba7f5b6"
 }

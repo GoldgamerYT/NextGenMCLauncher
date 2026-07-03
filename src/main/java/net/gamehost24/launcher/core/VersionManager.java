@@ -223,6 +223,70 @@ public class VersionManager {
                 });
     }
 
+    public void fetchQuiltLoaderVersions(String mcVersion, DownloadCallback<List<String>> callback) {
+        String urlStr = "https://meta.quiltmc.org/v3/versions/loader/" + mcVersion;
+        new Thread(() -> {
+            try {
+                URL url = new URL(urlStr);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                if (conn.getResponseCode() == 200) {
+                    try (InputStreamReader reader = new InputStreamReader(conn.getInputStream())) {
+                        JsonArray array = JsonParser.parseReader(reader).getAsJsonArray();
+                        List<String> versions = new ArrayList<>();
+                        for (JsonElement el : array) {
+                            JsonObject loader = el.getAsJsonObject().getAsJsonObject("loader");
+                            if (loader != null && loader.has("version")) {
+                                versions.add(loader.get("version").getAsString());
+                            }
+                        }
+                        callback.done(versions);
+                    }
+                } else {
+                    callback.done(Collections.emptyList());
+                }
+            } catch (Exception e) {
+                callback.done(Collections.emptyList());
+            }
+        }).start();
+    }
+
+    public void fetchLiteLoaderVersions(String mcVersion, DownloadCallback<List<String>> callback) {
+        String urlStr = "https://dl.liteloader.com/versions/versions.json";
+        new Thread(() -> {
+            try {
+                URL url = new URL(urlStr);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                List<String> versions = new ArrayList<>();
+                if (conn.getResponseCode() == 200) {
+                    try (InputStreamReader reader = new InputStreamReader(conn.getInputStream())) {
+                        JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+                        // versions -> mcVersion -> repo -> stream -> latest/version
+                        JsonObject versionsObj = root.has("versions") ? root.getAsJsonObject("versions") : null;
+                        if (versionsObj != null && versionsObj.has(mcVersion)) {
+                            JsonObject mcObj = versionsObj.getAsJsonObject(mcVersion);
+                            JsonObject repo = mcObj.has("repo") ? mcObj.getAsJsonObject("repo") : null;
+                            if (repo != null) {
+                                JsonObject stream = repo.has("stream") ? repo.getAsJsonObject("stream") : null;
+                                if (stream != null && stream.has("latest")) {
+                                    versions.add(stream.get("latest").getAsString());
+                                }
+                            }
+                        }
+                    }
+                }
+                callback.done(versions);
+            } catch (Exception e) {
+                callback.done(Collections.emptyList());
+            }
+        }).start();
+    }
+
     public void downloadVersion(String version, File gameDir, DownloadCallback<Version> callback) {
         MinecraftDirectory mcDir = new MinecraftDirectory(gameDir);
         downloader.downloadIncrementally(mcDir, version, new CallbackAdapter<Version>() {

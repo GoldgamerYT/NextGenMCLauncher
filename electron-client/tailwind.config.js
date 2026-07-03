@@ -7,12 +7,15 @@ export default {
   theme: {
     extend: {
       colors: {
-         background: "#09090b", // Zinc 950
-         surface: "#18181b",    // Zinc 900
-         primary: "#2563eb",    // Blue 600
-         accent: "#f59e0b",     // Amber 500
-         success: "#22c55e",    // Green 500
-         error: "#ef4444",      // Red 500
+        background: "var(--bg)",
+        surface:    "var(--surface)",
+        surface2:   "var(--surface2)",
+        primary:    "var(--accent)",
+        accent:     "var(--accent)",
+        success:    "var(--success)",
+        danger:     "var(--danger)",
+        error:      "var(--danger)",
+        warning:    "var(--warning)",
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
