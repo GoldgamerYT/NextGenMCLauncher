@@ -16,12 +16,12 @@
         "preview": "vite preview",
         "electron:dev": "concurrently \"npm run dev\" \"wait-on tcp:5173 && electron .\"",
         "electron:build": "npm run build && electron-builder",
-        "electron:build:win:x64": "npm run build && electron-builder --win --x64",
-        "electron:build:win:arm64": "npm run build && electron-builder --win --arm64",
-        "electron:build:linux:x64": "npm run build && electron-builder --linux AppImage deb --x64",
-        "electron:build:linux:arm64": "npm run build && electron-builder --linux AppImage deb --arm64",
-        "electron:build:mac:arm64": "npm run build && electron-builder --mac dmg --arm64",
-        "electron:build:mac:x64": "npm run build && electron-builder --mac dmg --x64"
+        "electron:build:win:x64": "npm run build && electron-builder --win --x64 --publish never",
+        "electron:build:win:arm64": "npm run build && electron-builder --win --arm64 --publish never",
+        "electron:build:linux:x64": "npm run build && electron-builder --linux AppImage deb --x64 --publish never",
+        "electron:build:linux:arm64": "npm run build && electron-builder --linux AppImage deb --arm64 --publish never",
+        "electron:build:mac:arm64": "npm run build && electron-builder --mac dmg --arm64 --publish never",
+        "electron:build:mac:x64": "npm run build && electron-builder --mac dmg --x64 --publish never"
     },
     "build": {
         "appId": "net.gamehost24.launcher",
