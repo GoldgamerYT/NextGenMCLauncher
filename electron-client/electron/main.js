@@ -182,18 +182,32 @@ function appendLauncherLog(level, message) {
 
 // ─── BACKEND HEALTH CHECK ────────────────────────────────────────────────────
 
-function waitForBackend(maxMs = 30000) {
+// TCP-based health check — more reliable than HTTP in packaged Electron builds.
+// Resolves true when port 35555 accepts a connection, false on timeout.
+function waitForBackend(maxMs = 25000) {
+  const net = require('net');
   return new Promise((resolve) => {
-    const start = Date.now();
+    const deadline = Date.now() + maxMs;
+    let resolved = false;
+    const done = (v) => { if (!resolved) { resolved = true; resolve(v); } };
+
+    // Absolute failsafe — can never hang indefinitely
+    const hardTimer = setTimeout(() => done(false), maxMs + 2000);
+
     const check = () => {
-      const req = http.get('http://localhost:35555/api/health', (res) => {
-        resolve(res.statusCode === 200);
+      if (Date.now() >= deadline) { clearTimeout(hardTimer); done(false); return; }
+      const sock = new net.Socket();
+      const t = setTimeout(() => { sock.destroy(); }, 1000);
+      sock.connect(35555, '127.0.0.1', () => {
+        clearTimeout(t); clearTimeout(hardTimer);
+        sock.destroy();
+        done(true);
       });
-      req.on('error', () => {
-        if (Date.now() - start < maxMs) setTimeout(check, 500);
-        else resolve(false);
+      sock.on('error', () => {
+        clearTimeout(t);
+        if (Date.now() < deadline) setTimeout(check, 600);
+        else { clearTimeout(hardTimer); done(false); }
       });
-      req.setTimeout(1000, () => { req.destroy(); });
     };
     check();
   });
