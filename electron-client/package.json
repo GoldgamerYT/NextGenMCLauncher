@@ -138,8 +138,7 @@
             "createDesktopShortcut": true,
             "createStartMenuShortcut": true,
             "shortcutName": "Atlas Craft",
-            "deleteAppDataOnUninstall": false,
-            "include": "build/installer.nsh"
+            "deleteAppDataOnUninstall": false
         },
         "files": [
             "dist/**/*",
