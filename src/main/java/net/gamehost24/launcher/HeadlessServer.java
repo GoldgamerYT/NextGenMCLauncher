@@ -54,7 +54,7 @@ public class HeadlessServer {
         logService.info("Backend", "Atlas Craft Backend starting…");
 
         // 2. Core services
-        configManager  = new ConfigManager();
+        configManager  = new ConfigManager(APP_DATA_DIR);
         profileManager = new ProfileManager();
         versionManager = new VersionManager();
         launcherEngine = new LauncherEngine();

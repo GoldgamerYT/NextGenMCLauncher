@@ -7,21 +7,23 @@ import net.gamehost24.launcher.model.LauncherConfig;
 import java.io.*;
 
 public class ConfigManager {
-    private static final File CONFIG_FILE = new File("config.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private final File configFile;
     private LauncherConfig config;
 
-    public ConfigManager() {
+    public ConfigManager(File appDataDir) {
+        appDataDir.mkdirs();
+        this.configFile = new File(appDataDir, "config.json");
         loadConfig();
     }
 
     public void loadConfig() {
-        if (!CONFIG_FILE.exists()) {
+        if (!configFile.exists()) {
             config = new LauncherConfig();
             saveConfig();
             return;
         }
-        try (Reader reader = new FileReader(CONFIG_FILE)) {
+        try (Reader reader = new FileReader(configFile)) {
             config = GSON.fromJson(reader, LauncherConfig.class);
             if (config == null) {
                 config = new LauncherConfig();
@@ -33,7 +35,7 @@ public class ConfigManager {
     }
 
     public void saveConfig() {
-        try (Writer writer = new FileWriter(CONFIG_FILE)) {
+        try (Writer writer = new FileWriter(configFile)) {
             GSON.toJson(config, writer);
         } catch (IOException e) {
             e.printStackTrace();

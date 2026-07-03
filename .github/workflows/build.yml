@@ -247,12 +247,20 @@ jobs:
             ### Download
             | Plattform | Datei |
             |-----------|-------|
-            | Windows x64 | `Atlas Craft-Setup-1.0.0-x64.exe` |
-            | Windows arm64 | `Atlas Craft-Setup-1.0.0-arm64.exe` |
-            | Linux x64 | `Atlas Craft-1.0.0-linux-x86_64.AppImage` |
-            | Linux x64 | `Atlas Craft-1.0.0-linux-amd64.deb` |
-            | macOS Apple Silicon | `Atlas Craft-1.0.0-mac-arm64.dmg` |
-            | macOS Intel | `Atlas Craft-1.0.0-mac-x64.dmg` |
+            | Windows x64 | `Atlas Craft-Setup-${{ github.ref_name }}-x64.exe` |
+            | Windows arm64 | `Atlas Craft-Setup-${{ github.ref_name }}-arm64.exe` |
+            | Linux x64 | `Atlas Craft-${{ github.ref_name }}-linux-x86_64.AppImage` |
+            | Linux x64 (deb) | `Atlas Craft-${{ github.ref_name }}-linux-amd64.deb` |
+            | macOS Apple Silicon | `Atlas Craft-${{ github.ref_name }}-mac-arm64.dmg` |
+            | macOS Intel | `Atlas Craft-${{ github.ref_name }}-mac-x64.dmg` |
+
+            ### macOS — "Beschädigt"-Fehler beheben
+            Da die App nicht von Apple signiert ist, zeigt macOS beim ersten Start einen Fehler.
+            **Lösung** — Terminal öffnen und eingeben:
+            ```
+            xattr -cr "/Applications/Atlas Craft.app"
+            ```
+            Danach die App normal starten.
 
             ### Linux Hinweis
             AppImage benötigt FUSE: `sudo apt install libfuse2`

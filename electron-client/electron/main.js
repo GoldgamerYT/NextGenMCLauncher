@@ -289,7 +289,7 @@ const JVM_FLAGS = [
 ];
 
 function resolveBundledJava() {
-  const javaExe = process.platform === 'win32' ? 'javaw.exe' : 'java';
+  const javaExe = process.platform === 'win32' ? 'java.exe' : 'java';
   const jreRoot  = path.join(process.resourcesPath, 'jre');
 
   // Direct layout: resources/jre/bin/java
@@ -365,9 +365,35 @@ function createWindow() {
   if (app.isPackaged) {
     const backendPath = path.join(process.resourcesPath, 'backend.jar');
     const javaCmd     = resolveBundledJava();
-    appendLauncherLog('info', `Starting backend: ${javaCmd} -jar ${backendPath}`);
 
-    backendProcess = spawn(javaCmd, [...JVM_FLAGS, '-jar', backendPath], { detached: false });
+    // Working directory for the backend process — same as where it stores config.json
+    const backendCwd = process.platform === 'win32'
+      ? path.join(process.env.APPDATA || app.getPath('userData'), 'AtlasCraft')
+      : path.join(app.getPath('home'), '.atlascraft');
+    fs.mkdirSync(backendCwd, { recursive: true });
+
+    appendLauncherLog('info', `Java:    ${javaCmd}`);
+    appendLauncherLog('info', `JAR:     ${backendPath}`);
+    appendLauncherLog('info', `cwd:     ${backendCwd}`);
+    appendLauncherLog('info', `JAR exists: ${fs.existsSync(backendPath)}`);
+
+    let uiLoaded = false;
+    const loadUI = () => {
+      if (uiLoaded) return;
+      uiLoaded = true;
+      if (mainWindow && !mainWindow.isDestroyed())
+        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    };
+
+    backendProcess = spawn(javaCmd, [...JVM_FLAGS, '-jar', backendPath], {
+      detached: false,
+      cwd: backendCwd,
+    });
+
+    backendProcess.on('error', (err) => {
+      appendLauncherLog('error', `Backend spawn failed: ${err.message}`);
+      loadUI();
+    });
 
     backendProcess.stdout.on('data', (data) => {
       const msg = data.toString().trim();
@@ -376,16 +402,17 @@ function createWindow() {
 
     backendProcess.stderr.on('data', (data) => {
       const msg = data.toString().trim();
-      if (msg) appendLauncherLog('error', `[Backend] ${msg}`);
+      if (msg) appendLauncherLog('warn', `[Backend] ${msg}`);
     });
 
     backendProcess.on('exit', (code) => {
       appendLauncherLog('warn', `Backend process exited with code ${code}`);
+      loadUI(); // ensure UI loads if backend dies before health check
     });
 
-    waitForBackend().then((ok) => {
-      appendLauncherLog('info', ok ? 'Backend ready' : 'Backend health check timed out — loading UI anyway');
-      mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    waitForBackend(25000).then((ok) => {
+      appendLauncherLog('info', ok ? 'Backend ready' : 'Backend health-check timed out — loading UI anyway');
+      loadUI();
     });
   } else {
     appendLauncherLog('info', 'Dev mode — backend managed externally');
