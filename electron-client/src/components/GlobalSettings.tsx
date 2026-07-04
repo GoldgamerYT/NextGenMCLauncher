@@ -26,6 +26,7 @@ interface ApiConfig {
     fullscreen:      boolean;
     autoStartLast:   boolean;
     microsoftClientId: string;
+    curseForgeApiKey:  string;
 }
 
 const DEFAULT_API_CONFIG: ApiConfig = {
@@ -40,6 +41,7 @@ const DEFAULT_API_CONFIG: ApiConfig = {
     fullscreen:      false,
     autoStartLast:   false,
     microsoftClientId: '',
+    curseForgeApiKey:  '',
 };
 
 const DEFAULT_LAUNCHER_SETTINGS: LauncherSettings = {
@@ -246,7 +248,7 @@ export function GlobalSettings() {
                     {activeCategory === 'accounts'    && <CategoryAccounts    account={account} setAccount={setAccount} />}
                     {activeCategory === 'instances'   && <CategoryInstances   ls={ls} setL={setL} profiles={profiles} />}
                     {activeCategory === 'gametweaks'  && <CategoryGameTweaks />}
-                    {activeCategory === 'developer'   && <CategoryDeveloper   ls={ls} setL={setL} />}
+                    {activeCategory === 'developer'   && <CategoryDeveloper   ls={ls} setL={setL} cfg={cfg} setC={setC} />}
                 </div>
             </div>
         </div>
@@ -589,20 +591,11 @@ function CategoryMinecraft({ cfg, setC, totalMem }: any) {
         }
     };
 
-    // Detect required Java version from Minecraft version
-    const getRequiredJava = (mcVersion: string): number => {
-        const parts = mcVersion.split('.').map(Number);
-        if (parts[1] >= 21) return 21;
-        if (parts[1] >= 17) return 17;
-        return 8;
-    };
-
     const handleInstallJava = async () => {
         setInstallingJava(true);
         setJavaInstallResult(null);
         try {
-            const version = getRequiredJava(cfg.windowWidth ? '1.20' : '1.20'); // Use config mc version when available
-            const result = await api.installJava(17); // Default to Java 17
+            const result = await api.installJava(21); // Java 21 — supports all current MC versions
             setJavaInstallResult(result);
             if (result.ok && result.javaPath) {
                 setC('defaultJavaPath', result.javaPath);
@@ -1352,7 +1345,7 @@ function CategoryGameTweaks() {
 
 // ─── CATEGORY: DEVELOPER ──────────────────────────────────────────────────────
 
-function CategoryDeveloper({ ls, setL }: any) {
+function CategoryDeveloper({ ls, setL, cfg, setC }: any) {
     const { t } = useTranslation();
     return (
         <>
@@ -1388,6 +1381,15 @@ function CategoryDeveloper({ ls, setL }: any) {
                 <ActionButton label={t('settings.developer.openCrashReports')} description={t('settings.developer.openCrashReportsDesc')}
                     icon={<AlertTriangle size={14} className="mr-1" />}
                     onClick={() => launcherApi.openCrashReports().catch(console.error)} />
+            </Section>
+
+            <Section title={t('settings.developer.apiKeys')}>
+                <InputRow label={t('settings.developer.msClientId')} description={t('settings.developer.msClientIdDesc')}
+                    value={cfg?.microsoftClientId ?? ''} onChange={v => setC('microsoftClientId', v)}
+                    placeholder="00000000-0000-0000-0000-000000000000" />
+                <InputRow label={t('settings.developer.cfApiKey')} description={t('settings.developer.cfApiKeyDesc')}
+                    value={cfg?.curseForgeApiKey ?? ''} onChange={v => setC('curseForgeApiKey', v)}
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
             </Section>
         </>
     );

@@ -39,7 +39,10 @@ public class HeadlessServer {
     static {
         String os = System.getProperty("os.name", "").toLowerCase();
         if (os.contains("win")) {
-            APP_DATA_DIR = new File(System.getenv("APPDATA"), "AtlasCraft");
+            String appData = System.getenv("APPDATA");
+            if (appData == null || appData.isBlank())
+                appData = System.getProperty("user.home") + "\\AppData\\Roaming";
+            APP_DATA_DIR = new File(appData, "AtlasCraft");
         } else {
             APP_DATA_DIR = new File(System.getProperty("user.home"), ".atlascraft");
         }
@@ -63,20 +66,27 @@ public class HeadlessServer {
 
         logService.info("Backend", "Services initialised — data dir: " + APP_DATA_DIR);
 
-        // Pre-install Java 8, 17, 21, 25 in background so they're ready on first launch
+        // Pre-install Java 8, 17, 21 in background so they're ready on first launch
         new net.gamehost24.launcher.core.JavaManager().preInstallAllVersionsAsync();
 
         // 3. Javalin
-        Javalin app = Javalin.create(cfg -> {
-            cfg.bundledPlugins.enableCors(cors ->
-                cors.addRule(io.javalin.plugin.bundled.CorsPluginConfig.CorsRule::anyHost));
-            cfg.router.ignoreTrailingSlashes = true;
-            cfg.showJavalinBanner            = false;
-            cfg.jsonMapper(new io.javalin.json.JsonMapper() {
-                public String toJsonString(Object obj, java.lang.reflect.Type type) { return gson.toJson(obj, type); }
-                public <T> T fromJsonString(String json, java.lang.reflect.Type type) { return gson.fromJson(json, type); }
-            });
-        }).start(35555);
+        Javalin app = null;
+        try {
+            app = Javalin.create(cfg -> {
+                cfg.bundledPlugins.enableCors(cors ->
+                    cors.addRule(io.javalin.plugin.bundled.CorsPluginConfig.CorsRule::anyHost));
+                cfg.router.ignoreTrailingSlashes = true;
+                cfg.showJavalinBanner            = false;
+                cfg.jsonMapper(new io.javalin.json.JsonMapper() {
+                    public String toJsonString(Object obj, java.lang.reflect.Type type) { return gson.toJson(obj, type); }
+                    public <T> T fromJsonString(String json, java.lang.reflect.Type type) { return gson.fromJson(json, type); }
+                });
+            }).start(35555);
+        } catch (Exception e) {
+            logService.error("Backend", null, "Cannot bind port 35555 — another instance may already be running: " + e.getMessage());
+            System.exit(99);
+            return;
+        }
 
         registerRoutes(app);
 
@@ -230,6 +240,7 @@ public class HeadlessServer {
                 Profile copy = new Profile(newName, src.getVersion(), src.getModLoader(),
                     src.getRamMb(), src.getJavaPath(), "", src.getIconPath());
                 copy.setLoaderVersion(src.getLoaderVersion());
+                copy.setCardColor(src.getCardColor());
                 copy.setUseGlobalRam(src.isUseGlobalRam());
                 copy.setProfileMinRamMb(src.getProfileMinRamMb());
                 profileManager.addProfile(copy);
@@ -649,8 +660,10 @@ public class HeadlessServer {
             CompletableFuture<List<String>> future = new CompletableFuture<>();
             if ("fabric".equalsIgnoreCase(type)) {
                 versionManager.fetchFabricLoaderVersions(mcVer, new SimpleCallback<>(future));
-            } else if ("forge".equalsIgnoreCase(type) || "neoforge".equalsIgnoreCase(type)) {
+            } else if ("forge".equalsIgnoreCase(type)) {
                 versionManager.fetchForgeVersions(mcVer, new SimpleCallback<>(future));
+            } else if ("neoforge".equalsIgnoreCase(type)) {
+                versionManager.fetchNeoForgeVersions(mcVer, new SimpleCallback<>(future));
             } else if ("quilt".equalsIgnoreCase(type)) {
                 versionManager.fetchQuiltLoaderVersions(mcVer, new SimpleCallback<>(future));
             } else if ("liteloader".equalsIgnoreCase(type)) {
@@ -663,7 +676,8 @@ public class HeadlessServer {
         });
 
         // ── CurseForge proxy (avoids CORS from renderer) ─────────────────────
-        final String CF_API_KEY = "66da4fbf-31a3-4436-9342-d9583b32aae2";
+        // Key is stored in config.json (AppData) — never committed to source control
+        final String CF_API_KEY = configManager.getConfig().getCurseForgeApiKey();
         app.get("/api/cf/search", ctx -> {
             String query   = ctx.queryParamAsClass("query",  String.class).getOrDefault("");
             String version = ctx.queryParamAsClass("version", String.class).getOrDefault("");

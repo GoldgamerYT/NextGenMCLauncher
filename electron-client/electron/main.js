@@ -269,12 +269,12 @@ function createTray() {
 
 function updateTrayMenu() {
   if (!tray) return;
-  const sleepLabel = isSleepMode ? '💤 Sleep Mode aktiv (Minecraft läuft)' : 'Atlas Craft';
+  const sleepLabel = isSleepMode ? 'Atlas Craft (Sleep Mode — Minecraft running)' : 'Atlas Craft';
   const menu = Menu.buildFromTemplate([
     { label: sleepLabel, enabled: false },
     { type: 'separator' },
     {
-      label: mainWindow && mainWindow.isVisible() ? 'Minimieren' : 'Öffnen',
+      label: mainWindow && mainWindow.isVisible() ? 'Minimize' : 'Open',
       click: () => {
         if (!mainWindow || mainWindow.isDestroyed()) return;
         if (mainWindow.isVisible()) {
@@ -287,7 +287,7 @@ function updateTrayMenu() {
       },
     },
     { type: 'separator' },
-    { label: 'Beenden', click: () => app.quit() },
+    { label: 'Quit', click: () => app.quit() },
   ]);
   tray.setContextMenu(menu);
 }
@@ -322,7 +322,7 @@ function resolveBundledJava() {
   }
 
   // Fallback: system Java (must be on PATH)
-  return process.platform === 'win32' ? 'javaw.exe' : 'java';
+  return process.platform === 'win32' ? 'java.exe' : 'java';
 }
 
 function createSplashWindow() {
@@ -421,6 +421,16 @@ function createWindow() {
 
     backendProcess.on('exit', (code) => {
       appendLauncherLog('warn', `Backend process exited with code ${code}`);
+      if (code === 99) {
+        // Port 35555 already in use — show error and quit
+        closeSplash();
+        dialog.showErrorBox(
+          'Atlas Craft — Port In Use',
+          'Port 35555 is already occupied.\n\nAnother instance of Atlas Craft is likely running. Close it and try again.'
+        );
+        app.quit();
+        return;
+      }
       loadUI(); // ensure UI loads if backend dies before health check
     });
 

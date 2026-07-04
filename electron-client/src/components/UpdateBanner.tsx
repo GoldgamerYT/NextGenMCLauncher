@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Download, RefreshCw, X, CheckCircle, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '../i18n';
 
 type UpdateStatus =
     | { status: 'idle' }
@@ -12,6 +13,7 @@ type UpdateStatus =
 function ea(): any { return (window as any).electronAPI ?? null; }
 
 export function UpdateBanner() {
+    const { t } = useTranslation();
     const [state, setState] = useState<UpdateStatus>({ status: 'idle' });
     const [dismissed, setDismissed] = useState(false);
 
@@ -64,16 +66,16 @@ export function UpdateBanner() {
                         {/* Text */}
                         <span style={{ color: 'var(--text)' }}>
                             {state.status === 'available' && (
-                                <>Update verfügbar: <span className="text-green-400 font-medium">v{state.version}</span></>
+                                <>{t('update.available')} <span className="text-green-400 font-medium">v{state.version}</span></>
                             )}
                             {state.status === 'downloading' && (
-                                <>Lade Update herunter… <span className="text-green-400 font-medium">{state.percent}%</span></>
+                                <>{t('update.downloading')} <span className="text-green-400 font-medium">{state.percent}%</span></>
                             )}
                             {state.status === 'downloaded' && (
-                                <>Update bereit: <span className="text-green-400 font-medium">v{state.version}</span> — Neustart erforderlich</>
+                                <>{t('update.downloaded')} <span className="text-green-400 font-medium">v{state.version}</span> {t('update.restartRequired')}</>
                             )}
                             {state.status === 'error' && (
-                                <span className="text-red-400">Update-Fehler: {state.message}</span>
+                                <span className="text-red-400">{t('update.error')} {state.message}</span>
                             )}
                         </span>
 
@@ -93,7 +95,7 @@ export function UpdateBanner() {
                                 onClick={download}
                                 className="px-3 py-1 rounded-lg bg-green-500 hover:bg-green-400 text-black text-xs font-semibold transition-colors"
                             >
-                                Herunterladen
+                                {t('update.download')}
                             </button>
                         )}
                         {state.status === 'downloaded' && (
@@ -101,7 +103,7 @@ export function UpdateBanner() {
                                 onClick={install}
                                 className="px-3 py-1 rounded-lg bg-green-500 hover:bg-green-400 text-black text-xs font-semibold transition-colors"
                             >
-                                Neustart & Installieren
+                                {t('update.installRestart')}
                             </button>
                         )}
 

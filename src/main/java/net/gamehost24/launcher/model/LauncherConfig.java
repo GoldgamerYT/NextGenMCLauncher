@@ -45,6 +45,9 @@ public class LauncherConfig {
      */
     private String microsoftClientId = "";
 
+    // ── CurseForge API ────────────────────────────────────────────────────────
+    private String curseForgeApiKey = "";
+
     // ── Getters / Setters ─────────────────────────────────────────────────────
 
     public int getDefaultRamMb()               { return defaultRamMb > 0 ? defaultRamMb : 4096; }
@@ -79,4 +82,7 @@ public class LauncherConfig {
 
     public String getMicrosoftClientId()       { return microsoftClientId != null ? microsoftClientId.trim() : ""; }
     public void setMicrosoftClientId(String v) { this.microsoftClientId = v != null ? v.trim() : ""; }
+
+    public String getCurseForgeApiKey()        { return curseForgeApiKey != null ? curseForgeApiKey.trim() : ""; }
+    public void setCurseForgeApiKey(String v)  { this.curseForgeApiKey = v != null ? v.trim() : ""; }
 }

@@ -287,6 +287,51 @@ public class VersionManager {
         }).start();
     }
 
+    public void fetchNeoForgeVersions(String mcVersion, DownloadCallback<List<String>> callback) {
+        new Thread(() -> {
+            try {
+                URL url = new URL("https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(8000);
+                conn.setReadTimeout(8000);
+                if (conn.getResponseCode() != 200) { callback.done(Collections.emptyList()); return; }
+
+                StringBuilder sb = new StringBuilder();
+                try (InputStreamReader r = new InputStreamReader(conn.getInputStream())) {
+                    char[] buf = new char[16384];
+                    int n;
+                    while ((n = r.read(buf)) != -1) sb.append(buf, 0, n);
+                }
+                String xml = sb.toString();
+
+                // Build version prefix: "1.21.1" → "21.1.", "1.20.4" → "20.4."
+                String prefix = null;
+                java.util.regex.Matcher mv = java.util.regex.Pattern
+                    .compile("1\\.(\\d+)(?:\\.(\\d+))?").matcher(mcVersion);
+                if (mv.find()) {
+                    int minor = Integer.parseInt(mv.group(1));
+                    int patch = mv.group(2) != null ? Integer.parseInt(mv.group(2)) : 0;
+                    prefix = minor + "." + patch + ".";
+                }
+
+                List<String> versions = new ArrayList<>();
+                java.util.regex.Matcher m = java.util.regex.Pattern
+                    .compile("<version>([^<]+)</version>").matcher(xml);
+                final String pfx = prefix;
+                while (m.find()) {
+                    String v = m.group(1).trim();
+                    if (pfx != null && v.startsWith(pfx) && !v.contains("beta")) {
+                        versions.add(v);
+                    }
+                }
+                Collections.reverse(versions);
+                callback.done(versions);
+            } catch (Exception e) {
+                callback.failed(e);
+            }
+        }).start();
+    }
+
     public void downloadVersion(String version, File gameDir, DownloadCallback<Version> callback) {
         MinecraftDirectory mcDir = new MinecraftDirectory(gameDir);
         downloader.downloadIncrementally(mcDir, version, new CallbackAdapter<Version>() {

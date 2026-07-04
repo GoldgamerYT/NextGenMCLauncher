@@ -15,7 +15,10 @@ public class ProfileManager {
     static {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            APP_DATA_DIR = System.getenv("APPDATA") + "\\AtlasCraft";
+            String appData = System.getenv("APPDATA");
+            if (appData == null || appData.isBlank())
+                appData = System.getProperty("user.home") + "\\AppData\\Roaming";
+            APP_DATA_DIR = appData + "\\AtlasCraft";
         } else {
             APP_DATA_DIR = System.getProperty("user.home") + "/.atlascraft";
         }

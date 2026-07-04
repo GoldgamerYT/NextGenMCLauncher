@@ -18,13 +18,17 @@ public class JavaManager {
     static {
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            APP_DATA_DIR = System.getenv("APPDATA") + "\\AtlasCraft";
+            String appData = System.getenv("APPDATA");
+            if (appData == null || appData.isBlank())
+                appData = System.getProperty("user.home") + "\\AppData\\Roaming";
+            APP_DATA_DIR = appData + "\\AtlasCraft";
         } else {
             APP_DATA_DIR = System.getProperty("user.home") + "/.atlascraft";
         }
     }
 
-    private static final File RUNTIMES_DIR = new File(APP_DATA_DIR, "runtimes");
+    // Shared with JavaInstaller: <AppData>/AtlasCraft/java/<version>/
+    private static final File RUNTIMES_DIR = new File(APP_DATA_DIR, "java");
 
     public JavaManager() {
         if (!RUNTIMES_DIR.exists()) {
@@ -37,7 +41,7 @@ public class JavaManager {
     }
 
     public File getJavaPath(int version, LogService log, String profile) throws IOException {
-        File javaHome = new File(RUNTIMES_DIR, "java-" + version);
+        File javaHome = new File(RUNTIMES_DIR, String.valueOf(version));
         File javaExec = findJavaInHome(javaHome);
 
         if (javaExec != null) return javaExec;
@@ -122,7 +126,7 @@ public class JavaManager {
         String arch = getArch();
 
         String urlStr = String.format(
-            "https://api.adoptium.net/v3/binary/latest/%d/ga/%s/%s/jdk/hotspot/normal/eclipse",
+            "https://api.adoptium.net/v3/binary/latest/%d/ga/%s/%s/jre/hotspot/normal/eclipse",
             version, os, arch
         );
 
@@ -130,7 +134,7 @@ public class JavaManager {
 
         File zipFile = new File(RUNTIMES_DIR, "java-" + version + ".zip.tmp");
         File finalZip = new File(RUNTIMES_DIR, "java-" + version + ".zip");
-        File extractDir = new File(RUNTIMES_DIR, "java-" + version);
+        File extractDir = new File(RUNTIMES_DIR, String.valueOf(version));
 
         // Clean up any previous partial extraction
         if (extractDir.exists()) deleteDirectory(extractDir);
@@ -163,12 +167,12 @@ public class JavaManager {
     }
 
     public void preInstallAllVersionsAsync() {
-        int[] versions = {8, 17, 21, 25};
+        int[] versions = {8, 17, 21};
         for (int ver : versions) {
             final int v = ver;
             Thread t = new Thread(() -> {
                 try {
-                    File javaHome = new File(RUNTIMES_DIR, "java-" + v);
+                    File javaHome = new File(RUNTIMES_DIR, String.valueOf(v));
                     File javaExec = findJavaInHome(javaHome);
                     if (javaExec != null) return; // Already installed and working
                     LogService log = LogService.getInstance();
