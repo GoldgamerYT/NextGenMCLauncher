@@ -676,8 +676,7 @@ public class HeadlessServer {
         });
 
         // ── CurseForge proxy (avoids CORS from renderer) ─────────────────────
-        // Key is stored in config.json (AppData) — never committed to source control
-        final String CF_API_KEY = configManager.getConfig().getCurseForgeApiKey();
+        final String CF_API_KEY = loadBundledCfApiKey();
         app.get("/api/cf/search", ctx -> {
             String query   = ctx.queryParamAsClass("query",  String.class).getOrDefault("");
             String version = ctx.queryParamAsClass("version", String.class).getOrDefault("");
@@ -945,6 +944,13 @@ public class HeadlessServer {
         }
         dir.delete();
         return count;
+    }
+
+    private static String loadBundledCfApiKey() {
+        try (java.io.InputStream is = HeadlessServer.class.getResourceAsStream("/cf.key")) {
+            if (is != null) return new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim();
+        } catch (java.io.IOException ignored) {}
+        return "";
     }
 
     private static String getSHA1(File file) {

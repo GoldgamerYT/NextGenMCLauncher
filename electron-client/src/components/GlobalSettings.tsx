@@ -26,7 +26,6 @@ interface ApiConfig {
     fullscreen:      boolean;
     autoStartLast:   boolean;
     microsoftClientId: string;
-    curseForgeApiKey:  string;
 }
 
 const DEFAULT_API_CONFIG: ApiConfig = {
@@ -41,7 +40,6 @@ const DEFAULT_API_CONFIG: ApiConfig = {
     fullscreen:      false,
     autoStartLast:   false,
     microsoftClientId: '',
-    curseForgeApiKey:  '',
 };
 
 const DEFAULT_LAUNCHER_SETTINGS: LauncherSettings = {
@@ -1387,9 +1385,6 @@ function CategoryDeveloper({ ls, setL, cfg, setC }: any) {
                 <InputRow label={t('settings.developer.msClientId')} description={t('settings.developer.msClientIdDesc')}
                     value={cfg?.microsoftClientId ?? ''} onChange={v => setC('microsoftClientId', v)}
                     placeholder="00000000-0000-0000-0000-000000000000" />
-                <InputRow label={t('settings.developer.cfApiKey')} description={t('settings.developer.cfApiKeyDesc')}
-                    value={cfg?.curseForgeApiKey ?? ''} onChange={v => setC('curseForgeApiKey', v)}
-                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
             </Section>
         </>
     );

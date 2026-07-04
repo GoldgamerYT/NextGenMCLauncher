@@ -32,8 +32,11 @@ public class CurseForgeClient {
     private final Gson gson = new Gson();
 
     public CurseForgeClient() {
-        // Try to load API key from environment
-        this.apiKey = System.getenv("CURSEFORGE_API_KEY");
+        try (java.io.InputStream is = CurseForgeClient.class.getResourceAsStream("/cf.key")) {
+            this.apiKey = (is != null) ? new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).trim() : "";
+        } catch (java.io.IOException e) {
+            this.apiKey = "";
+        }
     }
 
     public CurseForgeClient(String apiKey) {

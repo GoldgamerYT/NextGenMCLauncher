@@ -163,8 +163,6 @@
   "settings.developer.apiKeys": "API Keys",
   "settings.developer.msClientId": "Microsoft Client ID",
   "settings.developer.msClientIdDesc": "Azure AD app client ID for Microsoft login (optional)",
-  "settings.developer.cfApiKey": "CurseForge API Key",
-  "settings.developer.cfApiKeyDesc": "Required to browse mods on CurseForge",
 
   "update.available": "Update available:",
   "update.downloading": "Downloading update…",

@@ -29,6 +29,12 @@ jobs:
           cache: 'npm'
           cache-dependency-path: electron-client/package-lock.json
 
+      - name: Write CurseForge API key
+        shell: pwsh
+        run: |
+          $key = "${{ secrets.CF_API_KEY }}"
+          [System.IO.File]::WriteAllText("src/main/resources/cf.key", $key)
+
       - name: Build backend JAR
         run: ./gradlew.bat jar --quiet
 
@@ -111,6 +117,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Write CurseForge API key
+        run: echo -n "${{ secrets.CF_API_KEY }}" > src/main/resources/cf.key
+
       - name: Build backend JAR
         run: ./gradlew jar --quiet
 
@@ -164,6 +173,9 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x gradlew
+
+      - name: Write CurseForge API key
+        run: echo -n "${{ secrets.CF_API_KEY }}" > src/main/resources/cf.key
 
       - name: Build backend JAR
         run: ./gradlew jar --quiet
