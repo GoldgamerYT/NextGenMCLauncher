@@ -793,14 +793,16 @@ app.on('will-quit', () => {
 
   if (backendProcess && !backendProcess.killed) {
     const pid = backendProcess.pid;
-    if (process.platform === 'win32') {
-      // Kill entire process tree (Minecraft children included) — fire-and-forget, non-blocking
-      require('child_process').spawn('taskkill', ['/F', '/T', '/PID', String(pid)], {
-        detached: true, stdio: 'ignore',
-      }).unref();
-    } else {
-      try { process.kill(-pid, 'SIGTERM'); } catch (_) {}
-    }
+    // Kill the process first via Node API, then confirm with platform tool (synchronous so
+    // the process is actually dead before Electron exits — async taskkill was the root cause
+    // of the "Port already in use" error on next launch).
     try { backendProcess.kill(); } catch (_) {}
+    if (process.platform === 'win32') {
+      try {
+        require('child_process').execSync(`taskkill /F /T /PID ${pid}`, { timeout: 3000 });
+      } catch (_) {}
+    } else {
+      try { process.kill(-pid, 'SIGKILL'); } catch (_) {}
+    }
   }
 });
