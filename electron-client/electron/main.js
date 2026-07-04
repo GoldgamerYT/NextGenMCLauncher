@@ -292,6 +292,36 @@ function updateTrayMenu() {
   tray.setContextMenu(menu);
 }
 
+// Kill any process already listening on port 35555 (stale backend from previous session)
+function killOldBackend() {
+  try {
+    const { execSync } = require('child_process');
+    if (process.platform === 'win32') {
+      const out = execSync('netstat -ano', { encoding: 'utf8', timeout: 4000 });
+      const pids = new Set();
+      for (const line of out.split('\n')) {
+        const parts = line.trim().split(/\s+/);
+        // parts: [TCP, localAddr:port, remoteAddr:port, state, PID]
+        if (parts[0] !== 'TCP') continue;
+        if (!parts[1] || !parts[1].endsWith(':35555')) continue;
+        const pid = parts[parts.length - 1];
+        if (/^\d+$/.test(pid) && pid !== '0') pids.add(pid);
+      }
+      for (const pid of pids) {
+        try {
+          execSync(`taskkill /F /PID ${pid}`, { timeout: 3000 });
+          appendLauncherLog('info', `Killed stale backend process (PID ${pid})`);
+        } catch (_) {}
+      }
+    } else {
+      try {
+        execSync('fuser -k 35555/tcp', { timeout: 3000, stdio: 'ignore' });
+        appendLauncherLog('info', 'Killed stale backend on port 35555');
+      } catch (_) {}
+    }
+  } catch (_) {}
+}
+
 const JVM_FLAGS = [
   '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
   '--add-opens', 'java.base/java.util=ALL-UNNAMED',
@@ -420,6 +450,9 @@ function createWindow() {
       dialog.showErrorBox(title, body);
       app.quit();
     };
+
+    // Kill any stale backend from a previous session before spawning a fresh one
+    killOldBackend();
 
     backendProcess = spawn(javaCmd, [...JVM_FLAGS, '-jar', backendPath], {
       detached: false,
