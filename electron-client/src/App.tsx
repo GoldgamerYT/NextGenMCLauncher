@@ -482,7 +482,7 @@ function MainApp() {
                                 </h1>
                                 <div className="flex items-center gap-3 mb-8">
                                     <span className="px-3 py-1 rounded-full text-xs font-mono" style={{ backgroundColor: 'var(--surface2)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                                        v1.0.4-Beta
+                                        v1.0.5-Beta
                                     </span>
                                     <span className="px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-mono text-green-400">
                                         Stable
