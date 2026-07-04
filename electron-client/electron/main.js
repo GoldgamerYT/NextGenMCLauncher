@@ -292,25 +292,36 @@ function updateTrayMenu() {
   tray.setContextMenu(menu);
 }
 
-// Kill any process already listening on port 35555 (stale backend from previous session)
-function killOldBackend() {
+// Kill any process already listening on port 35555, then wait for OS to release the port.
+async function killOldBackend() {
   try {
     const { execSync } = require('child_process');
     if (process.platform === 'win32') {
-      const out = execSync('netstat -ano', { encoding: 'utf8', timeout: 4000 });
-      const pids = new Set();
-      for (const line of out.split('\n')) {
-        const parts = line.trim().split(/\s+/);
-        // parts: [TCP, localAddr:port, remoteAddr:port, state, PID]
-        if (parts[0] !== 'TCP') continue;
-        if (!parts[1] || !parts[1].endsWith(':35555')) continue;
-        const pid = parts[parts.length - 1];
-        if (/^\d+$/.test(pid) && pid !== '0') pids.add(pid);
-      }
-      for (const pid of pids) {
+      // PowerShell is more reliable than netstat-based parsing on Windows
+      try {
+        execSync(
+          'powershell -NoProfile -NonInteractive -Command "Get-NetTCPConnection -LocalPort 35555 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }"',
+          { timeout: 5000, stdio: 'ignore' }
+        );
+        appendLauncherLog('info', 'Killed stale process on port 35555');
+      } catch (_) {
+        // Fallback: netstat parse + taskkill
         try {
-          execSync(`taskkill /F /PID ${pid}`, { timeout: 3000 });
-          appendLauncherLog('info', `Killed stale backend process (PID ${pid})`);
+          const out = execSync('netstat -ano', { encoding: 'utf8', timeout: 4000 });
+          const pids = new Set();
+          for (const line of out.split('\n')) {
+            const parts = line.trim().split(/\s+/);
+            if (parts[0] !== 'TCP') continue;
+            if (!parts[1] || !parts[1].endsWith(':35555')) continue;
+            const pid = parts[parts.length - 1];
+            if (/^\d+$/.test(pid) && pid !== '0') pids.add(pid);
+          }
+          for (const pid of pids) {
+            try {
+              execSync(`taskkill /F /PID ${pid}`, { timeout: 3000 });
+              appendLauncherLog('info', `Killed stale backend (PID ${pid})`);
+            } catch (_) {}
+          }
         } catch (_) {}
       }
     } else {
@@ -320,6 +331,8 @@ function killOldBackend() {
       } catch (_) {}
     }
   } catch (_) {}
+  // Give the OS time to fully release the port before we try to bind it
+  await new Promise(resolve => setTimeout(resolve, 800));
 }
 
 const JVM_FLAGS = [
@@ -379,7 +392,7 @@ function closeSplash() {
   }
 }
 
-function createWindow() {
+async function createWindow() {
   if (app.isPackaged) createSplashWindow();
 
   mainWindow = new BrowserWindow({
@@ -451,8 +464,8 @@ function createWindow() {
       app.quit();
     };
 
-    // Kill any stale backend from a previous session before spawning a fresh one
-    killOldBackend();
+    // Kill any stale backend from a previous session, then wait for port to free up
+    await killOldBackend();
 
     backendProcess = spawn(javaCmd, [...JVM_FLAGS, '-jar', backendPath], {
       detached: false,

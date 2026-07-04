@@ -69,23 +69,30 @@ public class HeadlessServer {
         // Pre-install Java 8, 17, 21 in background so they're ready on first launch
         new net.gamehost24.launcher.core.JavaManager().preInstallAllVersionsAsync();
 
-        // 3. Javalin
+        // 3. Javalin — retry up to 3 times in case the port was just released by a dying process
         Javalin app = null;
-        try {
-            app = Javalin.create(cfg -> {
-                cfg.bundledPlugins.enableCors(cors ->
-                    cors.addRule(io.javalin.plugin.bundled.CorsPluginConfig.CorsRule::anyHost));
-                cfg.router.ignoreTrailingSlashes = true;
-                cfg.showJavalinBanner            = false;
-                cfg.jsonMapper(new io.javalin.json.JsonMapper() {
-                    public String toJsonString(Object obj, java.lang.reflect.Type type) { return gson.toJson(obj, type); }
-                    public <T> T fromJsonString(String json, java.lang.reflect.Type type) { return gson.fromJson(json, type); }
-                });
-            }).start(35555);
-        } catch (Exception e) {
-            logService.error("Backend", null, "Cannot bind port 35555 — another instance may already be running: " + e.getMessage());
-            System.exit(99);
-            return;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                app = Javalin.create(cfg -> {
+                    cfg.bundledPlugins.enableCors(cors ->
+                        cors.addRule(io.javalin.plugin.bundled.CorsPluginConfig.CorsRule::anyHost));
+                    cfg.router.ignoreTrailingSlashes = true;
+                    cfg.showJavalinBanner            = false;
+                    cfg.jsonMapper(new io.javalin.json.JsonMapper() {
+                        public String toJsonString(Object obj, java.lang.reflect.Type type) { return gson.toJson(obj, type); }
+                        public <T> T fromJsonString(String json, java.lang.reflect.Type type) { return gson.fromJson(json, type); }
+                    });
+                }).start(35555);
+                break;
+            } catch (Exception e) {
+                if (attempt == 3) {
+                    logService.error("Backend", null, "Cannot bind port 35555 after 3 attempts — " + e.getMessage());
+                    System.exit(99);
+                    return;
+                }
+                logService.warn("Backend", null, "Port 35555 busy, retrying in 1s (attempt " + attempt + "/3)…");
+                try { Thread.sleep(1000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+            }
         }
 
         registerRoutes(app);
