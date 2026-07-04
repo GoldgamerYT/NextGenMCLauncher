@@ -390,13 +390,35 @@ function createWindow() {
     appendLauncherLog('info', `JAR:     ${backendPath}`);
     appendLauncherLog('info', `cwd:     ${backendCwd}`);
     appendLauncherLog('info', `JAR exists: ${fs.existsSync(backendPath)}`);
+    appendLauncherLog('info', `Resources: ${process.resourcesPath}`);
 
-    let uiLoaded = false;
+    // Pre-flight: backend.jar must be present
+    if (!fs.existsSync(backendPath)) {
+      closeSplash();
+      dialog.showErrorBox(
+        'Atlas Craft — Missing Backend',
+        `backend.jar was not found at:\n${backendPath}\n\nPlease reinstall Atlas Craft.`
+      );
+      app.quit();
+      return;
+    }
+
+    let uiLoaded    = false;
+    let errorShown  = false;
+
     const loadUI = () => {
       if (uiLoaded) return;
       uiLoaded = true;
       if (mainWindow && !mainWindow.isDestroyed())
         mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    };
+
+    const showFatalError = (title, body) => {
+      if (errorShown) return;
+      errorShown = true;
+      closeSplash();
+      dialog.showErrorBox(title, body);
+      app.quit();
     };
 
     backendProcess = spawn(javaCmd, [...JVM_FLAGS, '-jar', backendPath], {
@@ -406,7 +428,17 @@ function createWindow() {
 
     backendProcess.on('error', (err) => {
       appendLauncherLog('error', `Backend spawn failed: ${err.message}`);
-      loadUI();
+      if (err.code === 'ENOENT') {
+        showFatalError(
+          'Atlas Craft — Java Not Found',
+          `Could not launch Java:\n  ${javaCmd}\n\nThe bundled JRE appears to be missing or corrupt.\n\nPlease reinstall Atlas Craft.\n\nLog: ${launcherLogPath}`
+        );
+      } else {
+        showFatalError(
+          'Atlas Craft — Backend Error',
+          `Failed to start the backend process:\n${err.message}\n\nLog: ${launcherLogPath}`
+        );
+      }
     });
 
     backendProcess.stdout.on('data', (data) => {
@@ -422,21 +454,43 @@ function createWindow() {
     backendProcess.on('exit', (code) => {
       appendLauncherLog('warn', `Backend process exited with code ${code}`);
       if (code === 99) {
-        // Port 35555 already in use — show error and quit
-        closeSplash();
-        dialog.showErrorBox(
+        showFatalError(
           'Atlas Craft — Port In Use',
           'Port 35555 is already occupied.\n\nAnother instance of Atlas Craft is likely running. Close it and try again.'
         );
-        app.quit();
         return;
       }
-      loadUI(); // ensure UI loads if backend dies before health check
+      if (code !== 0 && code !== null && !uiLoaded) {
+        showFatalError(
+          'Atlas Craft — Backend Crashed',
+          `The backend process exited unexpectedly (code ${code}).\n\nCheck the log for details:\n${launcherLogPath}`
+        );
+        return;
+      }
+      loadUI();
     });
 
     waitForBackend(25000).then((ok) => {
-      appendLauncherLog('info', ok ? 'Backend ready' : 'Backend health-check timed out — loading UI anyway');
-      loadUI();
+      if (ok) {
+        appendLauncherLog('info', 'Backend ready');
+        loadUI();
+      } else {
+        appendLauncherLog('warn', 'Backend health-check timed out');
+        if (!errorShown) {
+          // Backend never became ready but didn't crash with a known code — show warning and load anyway
+          closeSplash();
+          const choice = dialog.showMessageBoxSync({
+            type: 'warning',
+            title: 'Atlas Craft — Backend Timeout',
+            message: 'The backend is taking too long to start.',
+            detail: `It may still be starting (antivirus scan, slow disk).\n\nLog: ${launcherLogPath}`,
+            buttons: ['Wait & Continue', 'Quit'],
+            defaultId: 0,
+          });
+          if (choice === 1) { app.quit(); return; }
+        }
+        loadUI();
+      }
     });
   } else {
     appendLauncherLog('info', 'Dev mode — backend managed externally');
